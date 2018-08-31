@@ -1,9 +1,11 @@
 /**
- * Implements a falling shape
+ * Max dimension of every shape
  */
-
 const ShapeDimension = 5;
 
+/**
+ * Implements a falling shape
+ */
 class Shape {
     constructor(shapesSet, X = 10, Y = 10) {
         if(!shapesSet)

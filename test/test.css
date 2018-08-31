@@ -1,0 +1,9 @@
+.figure-show-table td {
+    border: 1px solid gray;
+    width: 14px;
+    height: 14px;
+}
+
+.figure {
+    background-color: darkgreen;
+}
