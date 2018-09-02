@@ -1,7 +1,8 @@
 .figure-show-table td {
     border: 1px solid gray;
-    width: 14px;
-    height: 14px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
 }
 
 .figure {

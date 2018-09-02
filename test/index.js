@@ -22,9 +22,20 @@ let App = new Vue({
             </tbody>
         </table>`,
     el: '#app',
-    data: function () {
+    data() {
+        
         return {
-            shape: shape
+            shape: new Shape(shapeSet)
         }
+    },
+    methods: {
+        render() {
+            this.shape =  new Shape(shapeSet);
+        }
+    },
+    beforeMount() {
+        setInterval(()=>{
+            this.render()
+        }, 1000)
     }
 });
