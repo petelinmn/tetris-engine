@@ -1,7 +1,15 @@
-.figure-show-table td {
+html {
+    background-color: black; 
+}
+
+.game-table {
+    border-spacing: 1px;
+}
+
+.game-table td {
     border: 1px solid gray;
-    width: 24px;
-    height: 24px;
+    width: 14px;
+    height: 14px;
     padding: 0;
 }
 
