@@ -6,7 +6,7 @@ const ShapeDimension = 5;
 /**
  * Implements a falling shape
  */
-class Shape {
+export default class Shape {
     constructor(shapesSet, X = 10, Y = 10) {
         if(!shapesSet)
             console.error('Set of shapes was not setted!')
@@ -160,7 +160,7 @@ class Shape {
      }
 }
 
-module.exports = {
-    Shape: Shape,
-    ShapeDimension: ShapeDimension
+export {
+    Shape,
+    ShapeDimension
 };

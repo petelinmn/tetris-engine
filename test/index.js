@@ -1,5 +1,5 @@
 
-let GameField = require('../dist/gamefield');
+import GameField from '../dist/gamefield'
 
 let game = new GameField(20, 40);
 
@@ -34,15 +34,15 @@ let App = new Vue({
 });
 
 
-//let shapeSet = require('../dist/shapes/tetra-shapes');
-//let Shape = require('../dist/shape').Shape;
+// import shapeSet from '../dist/shapes/tetra-shapes';
+// import { Shape, ShapeDimension } from '../dist/shape';
+// console.log(ShapeDimension);
 
-
-//let shape = new Shape(shapeSet);
+// let shape = new Shape(shapeSet);
 
 // let App = new Vue({
 //     template:
-//         `<table class="figure-show-table">
+//         `<table class="game-table">
 //             <tbody>
 //                 <tr v-for="row in shape.body">
 //                     <td v-for="cell in row"
@@ -52,8 +52,7 @@ let App = new Vue({
 //             </tbody>
 //         </table>`,
 //     el: '#app',
-//     data() {
-        
+//     data() {        
 //         return {
 //             shape: new Shape(shapeSet)
 //         }
@@ -64,7 +63,7 @@ let App = new Vue({
 //         }
 //     },
 //     beforeMount() {
-//         setInterval(()=>{
+//         setInterval(() => {
 //             this.render()
 //         }, 1000)
 //     }

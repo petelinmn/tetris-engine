@@ -1,8 +1,9 @@
+
 /**
  * Implements the area of a game
  */
 
-class GameField {
+export default class GameField {
 
     /**
      * Initializing new area
@@ -27,8 +28,7 @@ class GameField {
              val: Math.random() > 0.2 ? 1 : 0,
              i: i,
              j: j
-          }
-          );
+          });
        }
        body.push(row);
     }
@@ -36,4 +36,3 @@ class GameField {
  }
 }
 
-module.exports = GameField;

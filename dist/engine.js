@@ -1,8 +1,8 @@
 /**
- * Implements the engine of game
+ * Implements the engine of a game
  */
 
-class Engine {
+export default class Engine {
 
     /**
      * Initializing new Engine
@@ -15,5 +15,3 @@ class Engine {
       console.log('Hello from tetris-engine! v 1.0.8!');
    }
 }
-
-module.exports = Engine;
