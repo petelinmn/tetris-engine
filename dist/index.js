@@ -1,3 +1,5 @@
-const TetraShapes = require('./shapes/tetra-shapes.js')
+import TetraShapes from './shapes/tetra-shapes.js';
 
-module.exports = require('./engine.js');
+import Engine from './engine';
+
+export { Engine };

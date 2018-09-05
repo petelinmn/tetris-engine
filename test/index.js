@@ -1,13 +1,11 @@
 
-import GameField from '../dist/gamefield'
-
-let game = new GameField(20, 40);
+import { Engine as GameEngine } from '../dist/index'
 
 let App = new Vue({
     template:
         `<table class="game-table">
             <tbody>
-                <tr v-for="row in shape.body">
+                <tr v-for="row in gameBody">
                     <td v-for="cell in row"
                         v-bind:class="{ figure: cell.val == 1, empty: cell.val == 0 }">
                     </td>
@@ -15,56 +13,21 @@ let App = new Vue({
             </tbody>
         </table>`,
     el: '#app',
-    data() {
-        
+    data() {       
         return {
-            shape: new GameField(20, 30)
+            gameBody: null
         }
     },
     methods: {
-        render() {
-            this.shape =  new GameField(20, 30);
+        render(gameBody) {
+            this.gameBody = gameBody;
         }
     },
     beforeMount() {
-        setInterval(()=>{
-            this.render()
+        this.$gameEngine = new GameEngine(20, 30, this.render);
+
+        setInterval(() => {
+            this.render(this.$gameEngine.body)
         }, 1000)
     }
 });
-
-
-// import shapeSet from '../dist/shapes/tetra-shapes';
-// import { Shape, ShapeDimension } from '../dist/shape';
-// console.log(ShapeDimension);
-
-// let shape = new Shape(shapeSet);
-
-// let App = new Vue({
-//     template:
-//         `<table class="game-table">
-//             <tbody>
-//                 <tr v-for="row in shape.body">
-//                     <td v-for="cell in row"
-//                         v-bind:class="{ figure: cell == 1, empty: cell.val == 0 }">
-//                     </td>
-//                 </tr>
-//             </tbody>
-//         </table>`,
-//     el: '#app',
-//     data() {        
-//         return {
-//             shape: new Shape(shapeSet)
-//         }
-//     },
-//     methods: {
-//         render() {
-//             this.shape =  new Shape(shapeSet);
-//         }
-//     },
-//     beforeMount() {
-//         setInterval(() => {
-//             this.render()
-//         }, 1000)
-//     }
-// });
