@@ -27,7 +27,9 @@ let App = new Vue({
         this.$gameEngine = new GameEngine(20, 30, this.render);
 
         setInterval(() => {
+            this.$gameEngine.moveLeft();
             this.render(this.$gameEngine.body)
+            
         }, 1000)
     }
 });
