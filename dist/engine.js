@@ -101,6 +101,9 @@ export default class Engine {
   moveDown() { 
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
+
+    if(this._canShapeTouchGround())
+      return;
     
     this._shape.position.Y--;
     this._renderHandle(this.body);
@@ -113,6 +116,7 @@ export default class Engine {
     this._shape.rotate();
     this._renderHandle(this.body);
   }
+
   rotateBack() { 
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
@@ -121,11 +125,11 @@ export default class Engine {
     this._renderHandle(this.body);
   }
 
-  _getDeltaX(x) {
+  _getShapeDeltaX(x) {
     return x - this._shape.position.X;
   }
 
-  _getDeltaY(y) {
+  _getShapeDeltaY(y) {
       return this._shape.position.Y - y + 4;
   }
 
@@ -137,9 +141,13 @@ export default class Engine {
     return this._shape.position.X + 6 - this._shape.paddingRight > this.width;
   }
 
+  _canShapeTouchGround() {
+    return this._shape.position.Y + this._shape.paddingBottom == 0;
+  }
+
   _isSquareOfShape(y, x) {
-      return this._shape.body[this._getDeltaY(y)] &&
-                this._shape.body[this._getDeltaY(y)][this._getDeltaX(x)];
+      return this._shape.body[this._getShapeDeltaY(y)] &&
+                this._shape.body[this._getShapeDeltaY(y)][this._getShapeDeltaX(x)];
   }
 
   get body() {
