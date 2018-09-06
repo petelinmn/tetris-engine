@@ -19,6 +19,8 @@ export default class Shape {
            X: X,
            Y: Y
         };
+
+        this._calculateProperties();
      }
 
      /**

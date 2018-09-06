@@ -26,7 +26,7 @@ export default class Engine {
     let body = this.body;
     if(renderHandle) {
       renderHandle(body);
-      this.renderHandle = renderHandle;
+      this._renderHandle = renderHandle;
     }    
   }
 
@@ -55,7 +55,7 @@ export default class Engine {
     this._cycleId = setTimeout(() => {
       //here must be a gravity emulator function
 
-      //this.renderHandle(this.body);
+      //this._renderHandle(this.body);
     }, 1000);    
   }
 
@@ -73,16 +73,22 @@ export default class Engine {
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
 
+    if(this._canShapeTouchLeftWall())
+      return;
+
     this._shape.position.X--;
-    this.renderHandle(this.body);
+    this._renderHandle(this.body);
   }
 
   moveRight() { 
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
 
+    if(this._canShapeTouchRightWall())
+      return;
+
     this._shape.position.X++;
-    this.renderHandle(this.body);
+    this._renderHandle(this.body);
   }
 
   moveUp() { 
@@ -90,14 +96,14 @@ export default class Engine {
     //  return;
     
     this._shape.position.Y++;
-    this.renderHandle(this.body);
+    this._renderHandle(this.body);
   }
   moveDown() { 
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
     
     this._shape.position.Y--;
-    this.renderHandle(this.body);
+    this._renderHandle(this.body);
   }
 
   rotate() { 
@@ -105,14 +111,14 @@ export default class Engine {
     //  return;
     
     this._shape.rotate();
-    this.renderHandle(this.body);
+    this._renderHandle(this.body);
   }
   rotateBack() { 
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
     
     this._shape.rotateBack();
-    this.renderHandle(this.body);
+    this._renderHandle(this.body);
   }
 
   _getDeltaX(x) {
@@ -123,7 +129,15 @@ export default class Engine {
       return this._shape.position.Y - y + 4;
   }
 
-  isSquareOfShape(x, y) {
+  _canShapeTouchLeftWall() {
+    return this._shape.position.X + this._shape.paddingLeft - 1 < 0;
+  }
+
+  _canShapeTouchRightWall() {
+    return this._shape.position.X + 6 - this._shape.paddingRight > this.width;
+  }
+
+  _isSquareOfShape(y, x) {
       return this._shape.body[this._getDeltaY(y)] &&
                 this._shape.body[this._getDeltaY(y)][this._getDeltaX(x)];
   }
@@ -136,7 +150,7 @@ export default class Engine {
         for (let x = 0; x < this.width; x++) {
 
           row.push({
-              val: this.isSquareOfShape(x, y) ? 1 : 0,
+              val: this._isSquareOfShape(y, x) ? 1 : 0,
               x: x,
               y: y
           });
