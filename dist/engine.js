@@ -100,8 +100,20 @@ export default class Engine {
     this.renderHandle(this.body);
   }
 
-  rotate() { }
-  rotateBack() { }
+  rotate() { 
+    //if(this._gameStatus !== GAME_STATUS.WORK)
+    //  return;
+    
+    this._shape.rotate();
+    this.renderHandle(this.body);
+  }
+  rotateBack() { 
+    //if(this._gameStatus !== GAME_STATUS.WORK)
+    //  return;
+    
+    this._shape.rotateBack();
+    this.renderHandle(this.body);
+  }
 
   _getDeltaX(x) {
     return x - this._shape.position.X;

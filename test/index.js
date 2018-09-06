@@ -21,26 +21,40 @@ let App = new Vue({
     methods: {
         render(gameBody) {
             this.gameBody = gameBody;
+        },
+        onKeyDown(e) {
+            if (e && e.key && this) {
+               switch (e.key) {
+                  case 'Insert':
+                    this.$gameEngine.rotateBack();
+                    break;
+                  case 'Delete':
+                    this.$gameEngine.rotate();
+                    break;
+                  case 'ArrowUp':
+                    this.$gameEngine.moveUp();
+                    break;
+                  case 'ArrowDown':
+                    this.$gameEngine.moveDown();
+                    break;
+                  case 'ArrowLeft':
+                    this.$gameEngine.moveLeft();
+                    break;
+                  case 'ArrowRight':
+                    this.$gameEngine.moveRight();
+                    break;
+                }
+            }
         }
     },
     beforeMount() {
         this.$gameEngine = new GameEngine(20, 30, this.render);
 
-        setInterval(() => {
-            let rand = Math.random();
-            
-            if (rand < 0.25)
-                this.$gameEngine.moveLeft();
-            else if (rand < 0.5)
-                this.$gameEngine.moveRight();
-            else if (rand < 0.75)
-                this.$gameEngine.moveUp();
-            else 
-                this.$gameEngine.moveDown();                
-        
-            
+        setInterval(() => {    
             this.render(this.$gameEngine.body)
             
-        }, 1000)
+        }, 1000);
+
+        window.document.body.addEventListener('keydown', this.onKeyDown.bind(this));
     }
 });
