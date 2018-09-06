@@ -50,10 +50,10 @@ let App = new Vue({
     beforeMount() {
         this.$gameEngine = new GameEngine(20, 30, this.render);
 
-        setInterval(() => {    
+        //setInterval(() => {    
             this.render(this.$gameEngine.body)
             
-        }, 1000);
+        //}, 1000);
 
         window.document.body.addEventListener('keydown', this.onKeyDown.bind(this));
     }

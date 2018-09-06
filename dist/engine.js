@@ -14,7 +14,7 @@ export default class Engine {
    * @param {*} renderHandle The method that will be runned every time when game state will be changed. 
    * Receives game render data.
    */
-  constructor(width = 15, height = 20, renderHandle) {
+  constructor(width = 15, height = 20, renderHandle, defaultHeap) {
     if(width <= 0 || height <= 0)
       throw 'Size parameters of the game field are incorrect'
 
@@ -23,11 +23,20 @@ export default class Engine {
     this._newFigure();
     this._gameStatus = GAME_STATUS.INIT;
 
+    //beta heap
+    this._heap = [
+      [0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    ];
+
+console.log(this._heap);
+
     let body = this.body;
     if(renderHandle) {
       renderHandle(body);
       this._renderHandle = renderHandle;
-    }    
+    }
   }
 
   /**
@@ -52,7 +61,7 @@ export default class Engine {
     }
 
     this._gameStatus = GAME_STATUS.WORK;
-    this._cycleId = setTimeout(() => {
+    this._cycleId = setInterval(() => {
       //here must be a gravity emulator function
 
       //this._renderHandle(this.body);
@@ -98,6 +107,7 @@ export default class Engine {
     this._shape.position.Y++;
     this._renderHandle(this.body);
   }
+
   moveDown() { 
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
@@ -150,15 +160,18 @@ export default class Engine {
                 this._shape.body[this._getShapeDeltaY(y)][this._getShapeDeltaX(x)];
   }
 
+  _isHeapSquare(y, x) {
+    return this._heap[y] && this._heap[y][x];
+  }
+
   get body() {
-    console.log(44);
     let body = [];
     for (let y = this.height - 1; y >= 0; y--) {
         let row = [];
         for (let x = 0; x < this.width; x++) {
 
           row.push({
-              val: this._isSquareOfShape(y, x) ? 1 : 0,
+              val: this._isHeapSquare(y, x) || this._isSquareOfShape(y, x) ? 1 : 0,
               x: x,
               y: y
           });
