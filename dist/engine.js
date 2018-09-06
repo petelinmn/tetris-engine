@@ -1,5 +1,6 @@
 import { Shape, ShapeDimension } from './shape';
 import tetraShapes from './shapes/tetra-shapes';
+import uglyShapes from './shapes/ugly-shapes';
 
 /**
  * Implements the engine of a game
@@ -20,17 +21,27 @@ export default class Engine {
 
     this.width = width;
     this.height = height;
+
+    this._shapesSet = {};
+    for(let key in tetraShapes)
+      this._shapesSet[key] = tetraShapes[key];
+
+    for(let key in uglyShapes)
+      this._shapesSet[key] = uglyShapes[key];
+
     this._newFigure();
     this._gameStatus = GAME_STATUS.INIT;
 
     //beta heap
     this._heap = [
-      [0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
-
-console.log(this._heap);
 
     let body = this.body;
     if(renderHandle) {
@@ -43,8 +54,8 @@ console.log(this._heap);
    * Creates a new Shape
    */
   _newFigure() {
-    this._shape = this._nextShape ? this._nextShape : new Shape(tetraShapes);
-    this._nextShape = new Shape(tetraShapes);
+    this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet);
+    this._nextShape = new Shape(this._shapesSet);
   }
 
   /**
@@ -149,12 +160,36 @@ console.log(this._heap);
     if(this._canShapeTouchLeftWall())
      return false;
 
-    // if(this._shape.position.Y >= this._heap.length)
-    //   return true;
-    // else 
-    //   return false;
+    return this._canTouchHeapToLeft();
+  }
 
+  _canTouchHeapToLeft() {
+    if(this._shape.position.Y + this._shape.paddingBottom >= this._heap.length)
     return true;
+  
+    let deltaArr = [];
+    this._shape.body.forEach((row, rowIndex) => {
+      let deltaRow = 5;
+      row.forEach((cell, cellIndex) => {
+        if(cell)
+          if(deltaRow > cellIndex)
+            deltaRow = cellIndex;
+      });
+      deltaArr.push(deltaRow);
+    });
+
+    let stopMove = false;
+    deltaArr.forEach((val, index) => {
+      if(!stopMove) {
+        let indexY = ShapeDimension - index - 1 + this._shape.position.Y;
+        let indexX = this._shape.position.X - 1 + val;
+        if(this._isHeapSquare(indexY, indexX)) {
+          stopMove = true;
+        }
+      }
+    });
+
+    return !stopMove;
   }
 
   _canShapeTouchRightWall() {

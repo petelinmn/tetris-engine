@@ -48,7 +48,7 @@ let App = new Vue({
         }
     },
     beforeMount() {
-        this.$gameEngine = new GameEngine(12, 12, this.render);
+        this.$gameEngine = new GameEngine(18, 16, this.render);
 
         //setInterval(() => {    
             this.render(this.$gameEngine.body)
