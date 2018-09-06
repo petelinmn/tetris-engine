@@ -27,7 +27,18 @@ let App = new Vue({
         this.$gameEngine = new GameEngine(20, 30, this.render);
 
         setInterval(() => {
-            this.$gameEngine.moveLeft();
+            let rand = Math.random();
+            
+            if (rand < 0.25)
+                this.$gameEngine.moveLeft();
+            else if (rand < 0.5)
+                this.$gameEngine.moveRight();
+            else if (rand < 0.75)
+                this.$gameEngine.moveUp();
+            else 
+                this.$gameEngine.moveDown();                
+        
+            
             this.render(this.$gameEngine.body)
             
         }, 1000)

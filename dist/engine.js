@@ -76,9 +76,29 @@ export default class Engine {
     this._shape.position.X--;
     this.renderHandle(this.body);
   }
-  moveRight() { }
-  moveTop() { }
-  moveDown() { }
+
+  moveRight() { 
+    //if(this._gameStatus !== GAME_STATUS.WORK)
+    //  return;
+
+    this._shape.position.X++;
+    this.renderHandle(this.body);
+  }
+
+  moveUp() { 
+    //if(this._gameStatus !== GAME_STATUS.WORK)
+    //  return;
+    
+    this._shape.position.Y++;
+    this.renderHandle(this.body);
+  }
+  moveDown() { 
+    //if(this._gameStatus !== GAME_STATUS.WORK)
+    //  return;
+    
+    this._shape.position.Y--;
+    this.renderHandle(this.body);
+  }
 
   rotate() { }
   rotateBack() { }
