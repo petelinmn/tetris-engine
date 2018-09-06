@@ -1,5 +1,5 @@
-import Shape from './shape';
-import tetraShapes from './shapes/tetra-shapes'
+import { Shape, ShapeDimension } from './shape';
+import tetraShapes from './shapes/tetra-shapes';
 
 /**
  * Implements the engine of a game
@@ -40,13 +40,11 @@ console.log(this._heap);
   }
 
   /**
-   * Creates new Shape
+   * Creates a new Shape
    */
   _newFigure() {
     this._shape = this._nextShape ? this._nextShape : new Shape(tetraShapes);
     this._nextShape = new Shape(tetraShapes);
-
-    console.log(this._shape);
   }
 
   /**
@@ -82,7 +80,7 @@ console.log(this._heap);
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
 
-    if(this._canShapeTouchLeftWall())
+    if(!this._canShapeMoveLeft())
       return;
 
     this._shape.position.X--;
@@ -135,20 +133,32 @@ console.log(this._heap);
     this._renderHandle(this.body);
   }
 
-  _getShapeDeltaX(x) {
+  _getShapeIndexX(x) {
     return x - this._shape.position.X;
   }
 
-  _getShapeDeltaY(y) {
-      return this._shape.position.Y - y + 4;
+  _getShapeIndexY(y) {
+      return this._shape.position.Y + (ShapeDimension - 1) - y;
   }
 
   _canShapeTouchLeftWall() {
-    return this._shape.position.X + this._shape.paddingLeft - 1 < 0;
+    return this._shape.position.X + this._shape.paddingLeft <= 0;
+  }
+
+  _canShapeMoveLeft() {
+    if(this._canShapeTouchLeftWall())
+     return false;
+
+    // if(this._shape.position.Y >= this._heap.length)
+    //   return true;
+    // else 
+    //   return false;
+
+    return true;
   }
 
   _canShapeTouchRightWall() {
-    return this._shape.position.X + 6 - this._shape.paddingRight > this.width;
+    return this._shape.position.X + ShapeDimension - this._shape.paddingRight >= this.width;
   }
 
   _canShapeTouchGround() {
@@ -156,24 +166,34 @@ console.log(this._heap);
   }
 
   _isSquareOfShape(y, x) {
-      return this._shape.body[this._getShapeDeltaY(y)] &&
-                this._shape.body[this._getShapeDeltaY(y)][this._getShapeDeltaX(x)];
+      return this._shape.body[this._getShapeIndexY(y)] &&
+                this._shape.body[this._getShapeIndexY(y)][this._getShapeIndexX(x)];
   }
 
   _isHeapSquare(y, x) {
     return this._heap[y] && this._heap[y][x];
   }
 
+  _isLeftEdge(y, x) {
+    return this._getShapeIndexX(x) == 0 && this._getShapeIndexY(y) >= 0 && this._getShapeIndexY(y) <= 4;
+  }
+
+  _isRightEdge(y, x) {
+    return this._getShapeIndexX(x) == 4 && this._getShapeIndexY(y) >= 0 && this._getShapeIndexY(y) <= 4;
+  }
+
   get body() {
+    console.log(this._shape.position);
     let body = [];
     for (let y = this.height - 1; y >= 0; y--) {
         let row = [];
         for (let x = 0; x < this.width; x++) {
-
           row.push({
               val: this._isHeapSquare(y, x) || this._isSquareOfShape(y, x) ? 1 : 0,
               x: x,
-              y: y
+              y: y,
+              isLeftEdge: this._isLeftEdge(y, x),
+              isRightEdge: this._isRightEdge(y, x)
           });
         }
         body.push(row);

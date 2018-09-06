@@ -6,8 +6,8 @@ const ShapeDimension = 5;
 /**
  * Implements a falling shape
  */
-export default class Shape {
-    constructor(shapesSet, X = 10, Y = 10) {
+class Shape {
+    constructor(shapesSet, X = 5, Y = 6) {
         if(!shapesSet)
             console.error('Set of shapes was not setted!')
 
@@ -32,7 +32,7 @@ export default class Shape {
         let selectedShape;
         for (let prop in shapesSet) {
            if (Math.random() < 1 / ++count)
-              {selectedShape = prop;}
+              selectedShape = prop;
         }
         return shapesSet[selectedShape];
      }

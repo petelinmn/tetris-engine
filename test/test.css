@@ -8,11 +8,19 @@ html {
 
 .game-table td {
     border: 1px solid gray;
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
     padding: 0;
 }
 
 .figure {
     background-color: darkgreen;
+}
+
+.leftEdge {
+    border-left: 1px solid red !important;
+}
+
+.rightEdge {
+    border-right: 1px solid red !important;
 }

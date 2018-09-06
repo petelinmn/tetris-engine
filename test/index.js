@@ -7,8 +7,8 @@ let App = new Vue({
             <tbody>
                 <tr v-for="row in gameBody">
                     <td v-for="cell in row"
-                        v-bind:class="{ figure: cell.val == 1, empty: cell.val == 0 }">
-                    </td>
+                        v-bind:class="{ figure: cell.val == 1, empty: cell.val == 0, leftEdge: cell.isLeftEdge == true, rightEdge: cell.isRightEdge == true }">
+                    </td>                    
                 </tr>
             </tbody>
         </table>`,
@@ -48,7 +48,7 @@ let App = new Vue({
         }
     },
     beforeMount() {
-        this.$gameEngine = new GameEngine(20, 30, this.render);
+        this.$gameEngine = new GameEngine(12, 12, this.render);
 
         //setInterval(() => {    
             this.render(this.$gameEngine.body)
