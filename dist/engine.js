@@ -34,16 +34,25 @@ export default class Engine {
     this.start();
     
 
-    //beta heap
-    this._heap = [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    ];
+    this._heap = [];
+    if(defaultHeap && defaultHeap.length && defaultHeap[0].length) {
+
+      for(let y = 0; y < defaultHeap.length; y++) {
+        let row = [];
+        for(let x = 0; x < this.width; x++) { 
+          row.push(0);
+        }
+        this._heap.push(row);
+      }
+
+      let inversedDefaultHeap = defaultHeap.slice().reverse();
+      for(let y = 0; y < inversedDefaultHeap.length && y < this.height; y++) {
+        let row = inversedDefaultHeap[y];
+        for(let x = 0; x < row.length && x < this.width; x++) {
+          this._heap[y][x] = inversedDefaultHeap[y][x]
+        }
+      }
+    }
 
     if(renderHandle) {
       renderHandle(this.state);
@@ -174,26 +183,28 @@ export default class Engine {
   }
 
   _checkHeapForReduce() {
-    let countRowsToDelete = 0;
-    let indexFirstRowToDelete = -1;
+    let linesToRemove = [];
     for(let y = this._heap.length - 1; y >= 0; y--) {
       let row = this._heap[y];
       let isThereEmptySquare = false;
       for(let x = 0; x < row.length; x++) { 
         if(!this._heap[y][x]) {
           isThereEmptySquare = true
-          if(indexFirstRowToDelete < 0)
-            indexFirstRowToDelete = y;
           break;
         }
       }
 
       if(!isThereEmptySquare)
-        countRowsToDelete++;
+        linesToRemove.push(y);
     }
 
-    if(countRowsToDelete > 0)
-      this._heap.splice(this._heap.length - indexFirstRowToDelete, countRowsToDelete);
+    let newHeap = []
+    for (let y = 0; y < this._heap.length; y++) {
+      if(linesToRemove.indexOf(y) == -1)
+        newHeap.push(this._heap[y]);
+    }
+
+    this._heap = newHeap;
   }
 
   rotate() { 
