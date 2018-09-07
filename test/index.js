@@ -20,9 +20,9 @@ let App = new Vue({
     },
     methods: {
         render(gameState) {
+            if(gameState.gameStatus == 3)
+                alert('game over');
             this.gameState = gameState;
-
-            console.log(this.gameState);
         },
         onKeyDown(e) {
             if (e && e.key && this) {

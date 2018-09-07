@@ -30,18 +30,19 @@ export default class Engine {
     for(let key in uglyShapes)
       this._shapesSet[key] = uglyShapes[key];
 
-    this._newFigure();
     this._gameStatus = GAME_STATUS.INIT;
+    this.start();
+    
 
     //beta heap
     this._heap = [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
 
     if(renderHandle) {
@@ -54,8 +55,8 @@ export default class Engine {
    * Creates a new Shape
    */
   _newFigure() {
-    this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet);
-    this._nextShape = new Shape(this._shapesSet);
+    this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, this.width / 2 - 3, this.height);
+    this._nextShape = new Shape(this._shapesSet, this.width / 2 - 3, this.height);
   }
 
   /**
@@ -88,8 +89,8 @@ export default class Engine {
   }
 
   moveLeft() {
-    //if(this._gameStatus !== GAME_STATUS.WORK)
-    //  return;
+    if(this._gameStatus !== GAME_STATUS.WORK)
+     return;
 
     if(!this._canShapeMove(0, -1))
       return;
@@ -99,8 +100,8 @@ export default class Engine {
   }
 
   moveRight() { 
-    //if(this._gameStatus !== GAME_STATUS.WORK)
-    //  return;
+    if(this._gameStatus !== GAME_STATUS.WORK)
+     return;
 
     if(!this._canShapeMove(0, 1))
       return;
@@ -110,8 +111,9 @@ export default class Engine {
   }
 
   moveUp() { 
-    //if(this._gameStatus !== GAME_STATUS.WORK)
-    //  return;
+    if(this._gameStatus !== GAME_STATUS.WORK)
+     return;
+     
     if(!this._canShapeMove(1, 0))
       return;
     
@@ -120,11 +122,14 @@ export default class Engine {
   }
 
   moveDown() { 
-    //if(this._gameStatus !== GAME_STATUS.WORK)
-    //  return;
+    if(this._gameStatus !== GAME_STATUS.WORK)
+     return;
 
     if(!this._canShapeMove(-1, 0)) {
-      this._addShapeToHeap();
+      if(!this._addShapeToHeap()) {
+        this._gameStatus = GAME_STATUS.OVER;
+        this._renderHandle(this.state);
+      }
       return;
     }
       
@@ -134,14 +139,66 @@ export default class Engine {
   }
 
   _addShapeToHeap() {
+    let newRowForHeap = [];
+    for(let i = 0; i < this.width; i++)
+      newRowForHeap.push(0);
+
+    for(let y = ShapeDimension - 1; y >= 0; y--) {
+      let row = this._shape.body[y];
+      for(let x = 0; x < ShapeDimension; x++) { 
+          let cell = row[x];
+          if(cell) {
+            let areaIndexY = this._getAreaIndexYFromShape(y);
+            
+            if(areaIndexY >= this.height) {
+              //game over :)
+              return false;
+            }
+
+            while(areaIndexY >= this._heap.length) {
+              this._heap.push(newRowForHeap.slice());
+            }
+
+            let areaIndexX = this._getAreaIndexXFromShape(x);
+            this._heap[areaIndexY][areaIndexX] = 1;
+          }
+      }
+    }
+
+    this._checkHeapForReduce();
+
     this._newFigure();
     this._renderHandle(this.state);
-        
+
+    return true;
+  }
+
+  _checkHeapForReduce() {
+    let countRowsToDelete = 0;
+    let indexFirstRowToDelete = -1;
+    for(let y = this._heap.length - 1; y >= 0; y--) {
+      let row = this._heap[y];
+      let isThereEmptySquare = false;
+      for(let x = 0; x < row.length; x++) { 
+        if(!this._heap[y][x]) {
+          isThereEmptySquare = true
+          if(indexFirstRowToDelete < 0)
+            indexFirstRowToDelete = y;
+          break;
+        }
+      }
+
+      if(!isThereEmptySquare)
+        countRowsToDelete++;
+    }
+
+    if(countRowsToDelete > 0)
+      this._heap.splice(this._heap.length - indexFirstRowToDelete, countRowsToDelete);
   }
 
   rotate() { 
-    //if(this._gameStatus !== GAME_STATUS.WORK)
-    //  return;
+    if(this._gameStatus !== GAME_STATUS.WORK)
+     return;
     
     if(!this._canShapeMove(0, 0, this._shape.getRotatedBody()))
       return;
@@ -151,8 +208,8 @@ export default class Engine {
   }
 
   rotateBack() { 
-    //if(this._gameStatus !== GAME_STATUS.WORK)
-    //  return;
+    if(this._gameStatus !== GAME_STATUS.WORK)
+     return;
 
     if(!this._canShapeMove(0, 0, this._shape.getRotatedBackBody()))
       return;
@@ -211,7 +268,7 @@ export default class Engine {
     return true;
   }
 
-  _isSquareOfShape(y, x) {
+  _isShapeSquare(y, x) {
       let row = this._shape.body[this._getShapeIndexY(y)];
       return row && row[this._getShapeIndexX(x)];
   }
@@ -234,15 +291,8 @@ export default class Engine {
         let row = [];
         for (let x = 0; x < this.width; x++) {
           let isHeap = this._isHeapSquare(y, x);
-          let isShape = this._isSquareOfShape(y, x);
+          let isShape = this._isShapeSquare(y, x);
           let val = isHeap ? 2 : isShape ? 1 : 0; 
-
-
-          // let cssClasses = {};
-          // if(isShape) {
-          //   cssClasses[this._shape.name] = true;
-          //   cssClasses['shape'] = true
-          // }
 
           row.push({
               val: val,
@@ -253,14 +303,12 @@ export default class Engine {
               isRightEdge: this._isRightEdge(y, x),
               cssClasses: [
                 isShape ? 'shape' : null,
-                 isHeap ? 'heap' : null,
-                 this._isLeftEdge(y, x) ? 'leftEdge' : null,
-                 this._isRightEdge(y, x) ? 'rightEdge' : null,
-                 isShape ? this._shape.name + '' : null
+                isHeap ? 'heap' : null,
+                this._isLeftEdge(y, x) ? 'leftEdge' : null,
+                this._isRightEdge(y, x) ? 'rightEdge' : null,
+                isShape ? this._shape.name + '' : null
               ]
           });
-          if(isShape)
-          console.log(row);
         }
         body.push(row);
 
@@ -270,6 +318,7 @@ export default class Engine {
 
   get state() {
     return {
+      gameStatus: this._gameStatus,
       body: this._getBody(),
       shapeName: this._shape.name,
       nextShapeName: this._nextShape.name,
@@ -283,7 +332,7 @@ export default class Engine {
  * 
  * INIT - game was not started
  * WORK - game is running
- * PAUSE - game was timely stopped
+ * PAUSE - game was temporary stopped
  * OVER - game was finished
  */
 const GAME_STATUS = {

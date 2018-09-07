@@ -34,7 +34,7 @@ class Shape {
            if (Math.random() < 1 / ++count)
               selectedShape = prop;
         }
-console.log(selectedShape);
+        
         this.name = selectedShape;
 
         return shapesSet[selectedShape];
