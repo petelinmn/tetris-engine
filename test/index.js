@@ -63,8 +63,6 @@ let App = new Vue({
 
         this.$gameEngine = new GameEngine(18, 16, this.render, defaultHeap);
 
-        this.render(this.$gameEngine.state)
-
         window.document.body.addEventListener('keydown', this.onKeyDown.bind(this));
     }
 });
