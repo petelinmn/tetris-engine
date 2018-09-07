@@ -102,7 +102,7 @@ export default class Engine {
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
 
-    if(this._canShapeTouchRightWall())
+    if(!this._canShapeMoveRight())
       return;
 
     this._shape.position.X++;
@@ -112,6 +112,8 @@ export default class Engine {
   moveUp() { 
     //if(this._gameStatus !== GAME_STATUS.WORK)
     //  return;
+    if(!this._canShapeMove(1, 0))
+      return;
     
     this._shape.position.Y++;
     this._renderHandle(this.body);
@@ -122,6 +124,9 @@ export default class Engine {
     //  return;
 
     if(this._canShapeTouchGround())
+      return;
+
+    if(!this._canShapeMove(-1, 0))
       return;
     
     this._shape.position.Y--;
@@ -148,54 +153,65 @@ export default class Engine {
     return x - this._shape.position.X;
   }
 
+  _getAreaIndexXFromShape(shapeX, delta = 0) {
+    console.log(shapeX + '|' + delta + '|' + this._shape.position.X);
+
+    return shapeX + this._shape.position.X + delta;
+  }
+
   _getShapeIndexY(y) {
       return this._shape.position.Y + (ShapeDimension - 1) - y;
+  }
+
+  _getAreaIndexYFromShape(shapeY, delta = 0) {
+      return this._shape.position.Y + (ShapeDimension - 1) - shapeY + delta;
   }
 
   _canShapeTouchLeftWall() {
     return this._shape.position.X + this._shape.paddingLeft <= 0;
   }
 
-  _canShapeMoveLeft() {
-    if(this._canShapeTouchLeftWall())
-     return false;
-
-    return this._canTouchHeapToLeft();
-  }
-
-  _canTouchHeapToLeft() {
-    if(this._shape.position.Y + this._shape.paddingBottom >= this._heap.length)
-    return true;
-  
-    let deltaArr = [];
-    this._shape.body.forEach((row, rowIndex) => {
-      let deltaRow = 5;
-      row.forEach((cell, cellIndex) => {
-        if(cell)
-          if(deltaRow > cellIndex)
-            deltaRow = cellIndex;
-      });
-      deltaArr.push(deltaRow);
-    });
-
-    let stopMove = false;
-    deltaArr.forEach((val, index) => {
-      if(!stopMove) {
-        let indexY = ShapeDimension - index - 1 + this._shape.position.Y;
-        let indexX = this._shape.position.X - 1 + val;
-        if(this._isHeapSquare(indexY, indexX)) {
-          stopMove = true;
-        }
-      }
-    });
-
-    return !stopMove;
-  }
-
   _canShapeTouchRightWall() {
     return this._shape.position.X + ShapeDimension - this._shape.paddingRight >= this.width;
   }
 
+  _canShapeMoveLeft() {
+    if(this._canShapeTouchLeftWall())
+     return false;
+
+    return this._canShapeMove(0, -1);
+  }
+
+  _canShapeMoveRight() {
+    if(this._canShapeTouchRightWall())
+     return false;
+
+    return this._canShapeMove(0, 1);
+  }
+
+  /**
+   * Specifies can a shape move to a direction
+   * @param {*} deltaY specifies vertical moving distance
+   * @param {*} deltaX specifies horizontal moving distance
+   */
+  _canShapeMove(deltaY, deltaX) {
+    for(let y = 0; y < this._shape.body.length; y++) {
+      let row = this._shape.body[y];
+      let areaIndexY = this._getAreaIndexYFromShape(y, deltaY);
+      
+      for(let x = 0; x < row.length; x++) {
+        let cell = row[x];
+        if(cell) {
+          let areaIndexX = this._getAreaIndexXFromShape(x, deltaX);
+          if(this._isHeapSquare(areaIndexY, areaIndexX ))
+            return false;
+        }
+      }
+    }
+
+    return true;
+  }
+  
   _canShapeTouchGround() {
     return this._shape.position.Y + this._shape.paddingBottom == 0;
   }
