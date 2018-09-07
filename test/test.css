@@ -18,6 +18,10 @@ html {
     background-color: darkgreen;
 }
 
+.shape.LShape {
+    background-color: crimson;
+}
+
 .heap {
     background-color: darkkhaki;
 }

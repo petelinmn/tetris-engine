@@ -10,10 +10,11 @@ export default class Engine {
 
   /**
    * Initializing new area
-   * @param {*} width is the width of the field of the game in squares
-   * @param {*} height is the height of the field of the game in squares
-   * @param {*} renderHandle The method that will be runned every time when game state will be changed. 
-   * Receives game render data.
+   * @param {number} width is the width of the field of the game in squares
+   * @param {number} height is the height of the field of the game in squares
+   * @param {function} renderHandle The method that will be runned every time 
+   *                   when game state will be changed. Receives game render data.
+   * @param {Array} default heap for a game
    */
   constructor(width = 15, height = 20, renderHandle, defaultHeap) {
     if(width <= 0 || height <= 0)
@@ -43,9 +44,8 @@ export default class Engine {
       [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
 
-    let body = this.body;
     if(renderHandle) {
-      renderHandle(body);
+      renderHandle(this.state);
       this._renderHandle = renderHandle;
     }
   }
@@ -73,7 +73,7 @@ export default class Engine {
     this._cycleId = setInterval(() => {
       //here must be a gravity emulator function
 
-      //this._renderHandle(this.body);
+      //this._renderHandle(this.state);
     }, 1000);    
   }
 
@@ -95,7 +95,7 @@ export default class Engine {
       return;
 
     this._shape.position.X--;
-    this._renderHandle(this.body);
+    this._renderHandle(this.state);
   }
 
   moveRight() { 
@@ -106,7 +106,7 @@ export default class Engine {
       return;
 
     this._shape.position.X++;
-    this._renderHandle(this.body);
+    this._renderHandle(this.state);
   }
 
   moveUp() { 
@@ -116,7 +116,7 @@ export default class Engine {
       return;
     
     this._shape.position.Y++;
-    this._renderHandle(this.body);
+    this._renderHandle(this.state);
   }
 
   moveDown() { 
@@ -130,12 +130,12 @@ export default class Engine {
       
     
     this._shape.position.Y--;
-    this._renderHandle(this.body);
+    this._renderHandle(this.state);
   }
 
   _addShapeToHeap() {
     this._newFigure();
-    this._renderHandle(this.body);
+    this._renderHandle(this.state);
         
   }
 
@@ -147,7 +147,7 @@ export default class Engine {
       return;
       
     this._shape.rotate();
-    this._renderHandle(this.body);
+    this._renderHandle(this.state);
   }
 
   rotateBack() { 
@@ -158,7 +158,7 @@ export default class Engine {
       return;
     
     this._shape.rotateBack();
-    this._renderHandle(this.body);
+    this._renderHandle(this.state);
   }
 
   _getShapeIndexX(x) {
@@ -228,23 +228,53 @@ export default class Engine {
     return this._getShapeIndexX(x) == 4 && this._getShapeIndexY(y) >= 0 && this._getShapeIndexY(y) <= 4;
   }
 
-  get body() {
-    console.log(this._shape.position);
+  _getBody() {
     let body = [];
     for (let y = this.height - 1; y >= 0; y--) {
         let row = [];
         for (let x = 0; x < this.width; x++) {
+          let isHeap = this._isHeapSquare(y, x);
+          let isShape = this._isSquareOfShape(y, x);
+          let val = isHeap ? 2 : isShape ? 1 : 0; 
+
+
+          // let cssClasses = {};
+          // if(isShape) {
+          //   cssClasses[this._shape.name] = true;
+          //   cssClasses['shape'] = true
+          // }
+
           row.push({
-              val: this._isHeapSquare(y, x) ? 2 : this._isSquareOfShape(y, x) ? 1 : 0,
+              val: val,
               x: x,
               y: y,
+              shapeName: this._shape.name,
               isLeftEdge: this._isLeftEdge(y, x),
-              isRightEdge: this._isRightEdge(y, x)
+              isRightEdge: this._isRightEdge(y, x),
+              cssClasses: [
+                isShape ? 'shape' : null,
+                 isHeap ? 'heap' : null,
+                 this._isLeftEdge(y, x) ? 'leftEdge' : null,
+                 this._isRightEdge(y, x) ? 'rightEdge' : null,
+                 isShape ? this._shape.name + '' : null
+              ]
           });
+          if(isShape)
+          console.log(row);
         }
         body.push(row);
+
     }
     return body;
+  }
+
+  get state() {
+    return {
+      body: this._getBody(),
+      shapeName: this._shape.name,
+      nextShapeName: this._nextShape.name,
+      nextShapeBody: this._nextShape.body
+    }
   }
 }
 

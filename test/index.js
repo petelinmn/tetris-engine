@@ -5,9 +5,9 @@ let App = new Vue({
     template:
         `<table class="game-table">
             <tbody>
-                <tr v-for="row in gameBody">
+                <tr v-for="row in gameState.body">
                     <td v-for="cell in row"
-                        v-bind:class="{ shape: cell.val == 1, empty: cell.val == 0, heap: cell.val == 2, leftEdge: cell.isLeftEdge == true, rightEdge: cell.isRightEdge == true }">
+                        v-bind:class="cell.cssClasses">
                     </td>                    
                 </tr>
             </tbody>
@@ -15,12 +15,14 @@ let App = new Vue({
     el: '#app',
     data() {       
         return {
-            gameBody: null
+            gameState: null
         }
     },
     methods: {
-        render(gameBody) {
-            this.gameBody = gameBody;
+        render(gameState) {
+            this.gameState = gameState;
+
+            console.log(this.gameState);
         },
         onKeyDown(e) {
             if (e && e.key && this) {
@@ -51,7 +53,7 @@ let App = new Vue({
         this.$gameEngine = new GameEngine(18, 16, this.render);
 
         //setInterval(() => {    
-            this.render(this.$gameEngine.body)
+            this.render(this.$gameEngine.state)
             
         //}, 1000);
 
