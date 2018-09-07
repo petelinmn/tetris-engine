@@ -7,7 +7,7 @@ let App = new Vue({
             <tbody>
                 <tr v-for="row in gameBody">
                     <td v-for="cell in row"
-                        v-bind:class="{ figure: cell.val == 1, empty: cell.val == 0, leftEdge: cell.isLeftEdge == true, rightEdge: cell.isRightEdge == true }">
+                        v-bind:class="{ shape: cell.val == 1, empty: cell.val == 0, heap: cell.val == 2, leftEdge: cell.isLeftEdge == true, rightEdge: cell.isRightEdge == true }">
                     </td>                    
                 </tr>
             </tbody>

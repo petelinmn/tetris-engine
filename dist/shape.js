@@ -7,7 +7,7 @@ const ShapeDimension = 5;
  * Implements a falling shape
  */
 class Shape {
-    constructor(shapesSet, X = 5, Y = 6) {
+    constructor(shapesSet, X = 5, Y = 12) {
         if(!shapesSet)
             console.error('Set of shapes was not setted!')
 
@@ -88,7 +88,12 @@ class Shape {
       * rotating a shape clockwise
       * @public
       */
-     rotate() {
+     rotate() {  
+        this._shape = this.getRotatedBody();
+        this._calculateProperties();
+     }
+
+     getRotatedBody() {
         let newShape = [];
   
         for (let x = 0;  x < ShapeDimension; x++) {
@@ -98,9 +103,8 @@ class Shape {
            }
            newShape.push(newRow);
         }
-  
-        this._shape = newShape;
-        this._calculateProperties();
+
+        return newShape;
      }
   
      /**
@@ -108,6 +112,11 @@ class Shape {
       * @public
       */
      rotateBack() {
+        this._shape = this.getRotatedBackBody();
+        this._calculateProperties();
+     }
+
+     getRotatedBackBody() {
         let newShape = [];
         for (let x = ShapeDimension - 1;  x >= 0; x--) {
            let newRow = [];
@@ -116,9 +125,8 @@ class Shape {
            }
            newShape.push(newRow);
         }
-  
-        this._shape = newShape;
-        this._calculateProperties();
+
+        return newShape;
      }
 
      /**

@@ -14,8 +14,12 @@ html {
     padding: 0;
 }
 
-.figure {
+.shape {
     background-color: darkgreen;
+}
+
+.heap {
+    background-color: darkkhaki;
 }
 
 .leftEdge {
