@@ -1,6 +1,8 @@
 
 import { Engine as GameEngine } from '../dist/index'
 
+import uglyshapes from './ugly-shapes'
+
 let App = new Vue({
     template:
         `<table class="game-table">
@@ -15,7 +17,9 @@ let App = new Vue({
     el: '#app',
     data() {       
         return {
-            gameState: null
+            gameState: {
+                body:[]
+            }
         }
     },
     methods: {
@@ -27,6 +31,9 @@ let App = new Vue({
         onKeyDown(e) {
             if (e && e.key && this) {
                switch (e.key) {
+                case 'Insert':
+                    this.$gameEngine.start();
+                    break;
                   case 'Insert':
                     this.$gameEngine.rotateBack();
                     break;
@@ -51,6 +58,9 @@ let App = new Vue({
     },
     beforeMount() {
 
+        let areaHeight = 15;
+        let areaWidth = 25;
+
         let defaultHeap = [
           [0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -60,9 +70,14 @@ let App = new Vue({
           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         ];
-
-        this.$gameEngine = new GameEngine(18, 16, this.render, defaultHeap);
+        
+        this.$gameEngine = new GameEngine(areaHeight, areaWidth, this.render, defaultHeap, uglyshapes);
 
         window.document.body.addEventListener('keydown', this.onKeyDown.bind(this));
+
+        this.$gameEngine.start();
+        setInterval(()=>{
+            this.$gameEngine.moveDown();
+        }, 1000)
     }
 });

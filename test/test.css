@@ -1,26 +1,79 @@
 html {
-    background-color: black; 
+    background-color: #3b424c; 
 }
 
 .game-table {
+    background-color:  honeydew; 
     border-spacing: 1px;
     font-size: 9px;
 }
 
 .game-table td {
-    border: 1px solid gray;
-    width: 6px;
-    height: 6px;
+    width: 26px;
+    height: 26px;
     padding: 0;
 }
 
 .shape {
-    background-color: darkgreen;
+    background-color: #0d102d6b;
 }
 
 .shape.LShape {
     background-color: crimson;
 }
+
+.shape.JShape {
+    background-color: indianred;
+}
+
+.shape.TShape {
+    background-color: green;
+}
+
+.shape.OShape {
+    background-color: deepskyblue;
+}
+
+.shape.IShape {
+    background-color: mediumblue;
+}
+
+.shape.SShape {
+    background-color: saddlebrown;
+}
+
+.shape.ZShape {
+    background-color: teal;
+}
+
+.heap.LShape {
+    background-color: rgb(221, 55, 88);
+}
+
+.heap.JShape {
+    background-color: rgb(212, 135, 135);
+}
+
+.heap.TShape {
+    background-color: springgreen;
+}
+
+.heap.OShape {
+    background-color: skyblue;
+}
+
+.heap.IShape {
+    background-color: rgb(64, 64, 211);
+}
+
+.heap.SShape {
+    background-color: sandybrown;
+}
+
+.heap.ZShape {
+    background-color: steelblue;
+}
+
 
 .heap {
     background-color: darkkhaki;

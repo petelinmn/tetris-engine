@@ -12,8 +12,6 @@ class Shape {
             console.error('Set of shapes was not setted!')
 
         this._shape = this._selectNextShape(shapesSet);
-    
-        console.log(this._shape);
 
         this.position = {
            X: X,
