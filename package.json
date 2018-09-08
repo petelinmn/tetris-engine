@@ -1,11 +1,12 @@
 {
   "name": "tetris-engine",
-  "version": "1.1.0",
+  "version": "1.1.3",
   "description": "tetris-engine project",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "homepage": "https://github.com/petelinmn/tetris-engine",
   "keywords": [],
   "author": "",
   "license": "ISC",

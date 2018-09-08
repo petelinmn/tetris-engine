@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     IShape: [
        [0, 0, 0, 0, 0],
        [0, 0, 0, 0, 0],
