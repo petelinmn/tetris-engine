@@ -171,7 +171,7 @@ class Shape {
      }
 }
 
-export {
+module.exports = {
     Shape,
     ShapeDimension
 };

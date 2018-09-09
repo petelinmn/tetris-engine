@@ -1,3 +1,4 @@
-import Engine from './engine';
+let Engine = require('./engine')
+let tetraShapes = require('./tetra-shapes')
 
-export { Engine };
+module.exports = { Engine, tetraShapes };

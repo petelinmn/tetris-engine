@@ -1,11 +1,13 @@
-import { Shape, ShapeDimension } from './shape';
-import tetraShapes from './tetra-shapes';
+let Shape = require('./shape').Shape
+let ShapeDimension = require('./shape').ShapeDimension
+
+let tetraShapes = require('./tetra-shapes')
 
 /**
  * Implements the engine of a game
  */
 
-export default class Engine {
+class Engine {
 
   /**
    * Initializing new area
@@ -362,3 +364,5 @@ const GAME_STATUS = {
   PAUSE: 2,
   OVER: 3
 }
+
+module.exports = Engine;
