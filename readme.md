@@ -1,11 +1,11 @@
-tetris-engine project
+tetris-engine
 
-Impelements Javascript object 
+Implements Javascript object 
 that receive commands: start(), moveLeft(), moveRight(), moveDown(), rotate(), rotateBack()
-and receive Function as parameter that receive changed state of a game.
+and receive function as parameter that receive changed state of a game.
 
-let renderFunc = (gameBody) => {
- //rener tetris game
+let renderFunc = (gameState) => {
+ //render tetris game
 }
 
 let game = new Engine(areaHeight, areaWidth, renderFunc, defaultHeap, additionalShapes);
@@ -13,4 +13,6 @@ let game = new Engine(areaHeight, areaWidth, renderFunc, defaultHeap, additional
 game.moveDown();
 game.moveLeft(); .. etc..
 
+You can watch sample of use it in https://github.com/petelinmn/tetris-engine-sample
 
+This guide will be extend!

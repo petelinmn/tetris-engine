@@ -1,14 +1,14 @@
 {
   "name": "tetris-engine",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "tetris-engine project",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "homepage": "https://github.com/petelinmn/tetris-engine",
-  "keywords": [],
-  "author": "",
+  "keywords": ["tetris", "tetrimino", "puzzle", "brick", "brickgame", "тетрис"],
+  "author": "petelinmn",
   "license": "ISC",
   "devDependencies": {}
 }
