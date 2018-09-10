@@ -6,7 +6,7 @@ For developing you will need webpack.
 ### Get Started
 
 ```js
-let Engine = require('tetris-engine');
+let Engine = require('tetris-engine').Engine;
 
 //render tetris game
 //gameState contains status of a game, 2D Array of objects 
