@@ -96,4 +96,4 @@ game.pause();
 //You even use game.moveUp() for your custom game
 ```
 
-### You can watch sample of use it in https://github.com/petelinmn/tetris-engine-sample
+### You can watch sample of using it in https://github.com/petelinmn/tetris-engine-sample

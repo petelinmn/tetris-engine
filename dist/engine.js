@@ -338,14 +338,6 @@ class Engine {
     return this._heap[y][x].class;
   }
 
-  _isLeftEdge(y, x) {
-    return this._getShapeIndexX(x) == 0 && this._getShapeIndexY(y) >= 0 && this._getShapeIndexY(y) <= 4;
-  }
-
-  _isRightEdge(y, x) {
-    return this._getShapeIndexX(x) == 4 && this._getShapeIndexY(y) >= 0 && this._getShapeIndexY(y) <= 4;
-  }
-
   _getBody() {
     let body = [];
     for (let y = this.height - 1; y >= 0; y--) {
