@@ -1,7 +1,7 @@
 ## tetris-engine 
 ### is the light-weight javascript library for developing custom tetris-game yourself
 
-For developing you will need webpack.
+For development, you will need webpack.
 
 ### Get Started
 
@@ -27,7 +27,7 @@ let defaultHeap = [
    [0, 0, 1, 1, 1, 1, 0]
 ];
  
-//additionalShapes is optional parameter too. You can set due to next example:
+//additionalShapes is optional parameter too. You can set it in the next example:
 let additionalShapes = {
    MyShape1: [
       [0, 1, 1, 0, 0],
@@ -104,4 +104,4 @@ game.start();
 
 ```
 
-### You can watch sample of using it in https://github.com/petelinmn/tetris-engine-sample
+### You can watch sample of using it with vue.js in https://github.com/petelinmn/tetris-engine-sample
