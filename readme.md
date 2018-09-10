@@ -11,6 +11,8 @@ let Engine = require('tetris-engine');
 //that specify square of a game area and next shape's description
 //there is a information that can be used for render and 
 //set different appearance for every square in the game area
+//also gameState contains statistic that give you
+//opportunity to charge points for a game
 let renderFunc = gameState => {
     //You can render your tetris game by using react, vue etc
 }
@@ -42,11 +44,17 @@ let additionalShapes = {
     ]
  };
 
-let game = new Engine(areaHeight, areaWidth, renderFunc, defaultHeap, additionalShapes);
+let game = new Engine(areaHeight, 
+                      areaWidth, 
+                      renderFunc, 
+                      defaultHeap, 
+                      additionalShapes);
 
 //For starting game process need run game.start();
 //And run cycle that each iteration runs game.moveDown();
 game.start();
+
+let firstLevelInterval = 1000;
 setInterval(() => {
     game.moveDown();
 }, firstLevelInterval)
@@ -58,10 +66,9 @@ game.rotateBack();
 game.moveRight();
 game.moveLeft(); 
 game.moveDown();
+game.pause();
 //for game managament
-//for custom game you even use game.moveUp();
+//You even use game.moveUp() for your custom game
 ```
 
 ### You can watch sample of use it in https://github.com/petelinmn/tetris-engine-sample
-
-#### This guide will be extend!

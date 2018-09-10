@@ -1,6 +1,6 @@
 {
   "name": "tetris-engine",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "tetris-engine project",
   "main": "dist/index.js",
   "scripts": {

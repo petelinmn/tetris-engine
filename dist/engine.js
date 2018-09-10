@@ -34,6 +34,14 @@ class Engine {
 
     this._gameStatus = GAME_STATUS.INIT;    
 
+    this._statistic = {
+      countShapesFalled: 0,
+      countLinesReduced: 0,
+      countDoubleLinesReduced: 0,
+      countTrippleLinesReduced: 0,
+      countQuadrupleLinesReduced: 0
+    }
+
     this._heap = [];
     if(defaultHeap && defaultHeap.length && defaultHeap[0].length) {
 
@@ -56,6 +64,8 @@ class Engine {
       }
     }
 
+    this._checkHeapForReduce();
+
     if(renderHandle) {
       renderHandle(this.state);
       this._renderHandle = renderHandle;
@@ -68,6 +78,8 @@ class Engine {
   _newFigure() {
     this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height);
     this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height);
+
+    this._statistic.countShapesFalled++;
   }
 
   /**
@@ -205,6 +217,19 @@ class Engine {
     for (let y = 0; y < this._heap.length; y++) {
       if(linesToRemove.indexOf(y) == -1)
         newHeap.push(this._heap[y]);
+    }
+
+    this._statistic.countLinesReduced += linesToRemove.length;
+    switch(linesToRemove.length) {
+      case 2:
+        this._statistic.countDoubleLinesReduced++;
+        break;
+      case 3:
+        this._statistic.countTrippleLinesReduced++;
+        break;
+      case 4: 
+        this._statistic.countQuadrupleLinesReduced++;
+        break;
     }
 
     this._heap = newHeap;
@@ -345,7 +370,8 @@ class Engine {
       body: this._getBody(),
       shapeName: this._shape ? this._shape.name : null,
       nextShapeName: this._nextShape ? this._nextShape.name : null,
-      nextShapeBody: this._nextShape ? this._nextShape.body : null
+      nextShapeBody: this._nextShape ? this._nextShape.body : null,
+      statistic: this._statistic
     }
   }
 }
