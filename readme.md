@@ -3,6 +3,7 @@
 
 For developing you will need webpack.
 
+```js
 let Engine = require('tetris-engine');
 
 //render tetris game
@@ -45,21 +46,21 @@ let game = new Engine(areaHeight, areaWidth, renderFunc, defaultHeap, additional
 
 //For starting game process need run game.start();
 //And run cycle that each iteration runs game.moveDown();
-
 game.start();
 setInterval(() => {
     game.moveDown();
 }, firstLevelInterval)
 
 
-### Use
+// Use
 game.rotate();
 game.rotateBack();
 game.moveRight();
 game.moveLeft(); 
 game.moveDown();
-for game managament
-for custom game you even use game.moveUp();
+//for game managament
+//for custom game you even use game.moveUp();
+```
 
 ### You can watch sample of use it in https://github.com/petelinmn/tetris-engine-sample
 
