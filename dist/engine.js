@@ -36,6 +36,7 @@ class Engine {
 
     this._statistic = {
       countShapesFalled: 0,
+      countShapesFalledByType: { },
       countLinesReduced: 0,
       countDoubleLinesReduced: 0,
       countTrippleLinesReduced: 0,
@@ -78,6 +79,12 @@ class Engine {
   _newFigure() {
     this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height);
     this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height);
+
+    let countFalledShapesByThisKind = this._statistic.countShapesFalledByType[this._shape.name];
+    if(!countFalledShapesByThisKind)
+      this._statistic.countShapesFalledByType[this._shape.name] = 1;
+    else 
+      this._statistic.countShapesFalledByType[this._shape.name]++;
 
     this._statistic.countShapesFalled++;
   }

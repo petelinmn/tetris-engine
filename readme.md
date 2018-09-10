@@ -46,7 +46,8 @@ let additionalShapes = {
  };
 ```
 
-You can set appearance for shapes
+You can set appearance for shapes in css, 
+but you should specify this classes in rendering took them from gameState
 
 ```css
 .shape.MyShape1 {
