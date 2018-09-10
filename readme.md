@@ -8,14 +8,17 @@ For development, you will need webpack.
 ```js
 let Engine = require('tetris-engine').Engine;
  
-//render tetris game
-//function executed every time when state of a game was changed
-//gameState contains status of a game, 2D Array of objects 
-//that specify square of a game area and next shape's description
-//there is a information that can be used for render and 
-//set different appearance for every square in the game area
-//also gameState contains statistic that give you
-//opportunity to charge points for a game
+
+  /**
+   * Renders your tetris game, function executed every time when state of a game was changed
+   * If new coordinates of shape overlap with coordinates of heap 
+   * or are outside the game area the shape can't move
+   * @param {Object} gameState contains status of a game
+   * 1) 2D Array of objects that specify information about each square of a game area.
+   * 2) Next shape's description
+   * 3) Game status (Init = 0, Work = 1, Pause = 2, Over = 3)
+   * 4) Statistic that give you opportunity to charge points for a game
+   */
 let renderFunc = gameState => {
    //You can render your tetris game by using react, vue etc or
    //use it on server and send render data to client
