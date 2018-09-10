@@ -1,25 +1,66 @@
-tetris-engine
+## tetris-engine 
+### is a light-weight javascript library for developing custom tetris-game yourself
 
-Implements Javascript class 
-that has commands: start(), moveLeft(), moveRight(), moveDown(), rotate(), rotateBack()
-and receive function as a parameter that receive changed state of a game.
+For developing you will need webpack.
 
-let renderFunc = (gameState) => {
- //render tetris game
- //gameState contains status of a game, 2D Array of objects 
- //that specify square of game area and next shape's description
+let Engine = require('tetris-engine');
 
- //You would render your tetris game by using react, vue etc
+//render tetris game
+//gameState contains status of a game, 2D Array of objects 
+//that specify square of a game area and next shape's description
+//there is a information that can be used for render and 
+//set different appearance for every square in the game area
+let renderFunc = gameState => {
+    //You can render your tetris game by using react, vue etc
 }
+
+//defaultHeap is optional parameter. It represents 2-D array of 0 and 1. 
+let defaultHeap = [
+    [0, 0, 0, 0, 1, 1, 0],
+    [0, 0, 0, 1, 1, 0, 0],
+    [0, 0, 1, 1, 1, 1, 0]
+]
+
+//additionalShapes is optional parameter too. You can set due to next example:
+// later you can set appearance for this shape 
+// in css .shape.ShapeName {} and .heap.ShapeName {}...
+let additionalShapes = {
+    MyShape1: [
+       [0, 1, 1, 0, 0],
+       [0, 0, 1, 0, 0],
+       [0, 0, 1, 0, 0],
+       [0, 0, 1, 1, 0],
+       [0, 0, 0, 1, 0],
+    ],
+    MyShape2: [
+       [1, 1, 1, 1, 1],
+       [0, 1, 1, 1, 0],
+       [0, 1, 0, 1, 0],
+       [0, 1, 0, 1, 0],
+       [0, 1, 0, 1, 0],
+    ]
+ };
 
 let game = new Engine(areaHeight, areaWidth, renderFunc, defaultHeap, additionalShapes);
 
-For starting game flow need run game.start();
-And run cycle that each iteration runs game.moveDown();
+//For starting game process need run game.start();
+//And run cycle that each iteration runs game.moveDown();
 
+game.start();
+setInterval(() => {
+    game.moveDown();
+}, firstLevelInterval)
+
+
+### Use
+game.rotate();
+game.rotateBack();
+game.moveRight();
+game.moveLeft(); 
 game.moveDown();
-game.moveLeft(); .. etc..
+for game managament
+for custom game you even use game.moveUp();
 
-You can watch sample of use it in https://github.com/petelinmn/tetris-engine-sample
+### You can watch sample of use it in https://github.com/petelinmn/tetris-engine-sample
 
-This guide will be extend!
+#### This guide will be extend!

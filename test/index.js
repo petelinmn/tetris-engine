@@ -30,10 +30,8 @@ let App = new Vue({
         },
         onKeyDown(e) {
             if (e && e.key && this) {
+                console.log(e.key);
                switch (e.key) {
-                case 'Insert':
-                    this.$gameEngine.start();
-                    break;
                   case 'Insert':
                     this.$gameEngine.rotateBack();
                     break;
