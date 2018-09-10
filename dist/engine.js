@@ -101,6 +101,10 @@ class Engine {
       this._gameStatus = GAME_STATUS.WORK;
       return true;
     }
+    
+    if(this._gameStatus == GAME_STATUS.PAUSE) {
+      this._gameStatus = GAME_STATUS.WORK;
+    }
   }
 
   /**
