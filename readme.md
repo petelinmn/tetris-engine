@@ -1,7 +1,9 @@
 ## tetris-engine 
-### is a light-weight javascript library for developing custom tetris-game yourself
+### is the light-weight javascript library for developing custom tetris-game yourself
 
 For developing you will need webpack.
+
+### Get Started
 
 ```js
 let Engine = require('tetris-engine');
@@ -14,7 +16,8 @@ let Engine = require('tetris-engine');
 //also gameState contains statistic that give you
 //opportunity to charge points for a game
 let renderFunc = gameState => {
-    //You can render your tetris game by using react, vue etc
+    //You can render your tetris game by using react, vue etc or
+    //use it on server and send render data to client
 }
 
 //defaultHeap is optional parameter. It represents 2-D array of 0 and 1. 
@@ -25,8 +28,6 @@ let defaultHeap = [
 ]
 
 //additionalShapes is optional parameter too. You can set due to next example:
-// later you can set appearance for this shape 
-// in css .shape.ShapeName {} and .heap.ShapeName {}...
 let additionalShapes = {
     MyShape1: [
        [0, 1, 1, 0, 0],
@@ -43,7 +44,30 @@ let additionalShapes = {
        [0, 1, 0, 1, 0],
     ]
  };
+```
 
+You can set appearance for shapes
+
+```css
+.shape.MyShape1 {
+    background-color: red;
+}
+
+.heap.MyShape1 {
+    background-color: pink;
+}
+
+.shape.MyShape2 {
+    background-color: blue;
+}
+
+.heap.MyShape2 {
+    background-color: lightblue;
+}
+```
+
+### Create the game
+```js
 let game = new Engine(areaHeight, 
                       areaWidth, 
                       renderFunc, 
