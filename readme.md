@@ -9,6 +9,7 @@ For development, you will need webpack.
 let Engine = require('tetris-engine').Engine;
  
 //render tetris game
+//it function executed every time when state of a game was changed
 //gameState contains status of a game, 2D Array of objects 
 //that specify square of a game area and next shape's description
 //there is a information that can be used for render and 
