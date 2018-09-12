@@ -6,12 +6,28 @@ html {
     background-color:  honeydew; 
     border-spacing: 1px;
     font-size: 9px;
+    float:left;
+    border: 2px solid black;
+    margin-right: 5px;
 }
 
 .game-table td {
-    width: 26px;
-    height: 26px;
+    width: 16px;
+    height: 16px;
     padding: 0;
+}
+
+.shape-table {
+    background-color: coral;
+}
+
+.shape-table td {
+    width: 12px;
+    height: 12px;
+}
+
+.statistic-list {
+    color: white;
 }
 
 .shape {

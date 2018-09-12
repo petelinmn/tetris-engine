@@ -137,6 +137,23 @@ class Shape {
      get body() {
         return this._shape;
      }
+
+     get bodyWithAppearance() {
+        let body = [];
+  
+        for (let x = 0;  x < ShapeDimension; x++) {
+           let newRow = [];
+           for (let y = 0;  y < ShapeDimension; y++) {
+              newRow.push({
+                  val: this._shape[y][x],
+                  css: this._shape[y][x] ? 'shape ' + this.name : null
+              });
+           }
+           body.push(newRow);
+        }
+
+        return body;
+     }
   
      /**
       * getting top padding for shape relatively shape's border

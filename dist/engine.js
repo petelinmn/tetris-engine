@@ -36,7 +36,7 @@ class Engine {
 
     this._statistic = {
       countShapesFalled: 0,
-      countShapesFalledByType: { },
+      countShapesFalledByType: [],
       countLinesReduced: 0,
       countDoubleLinesReduced: 0,
       countTrippleLinesReduced: 0,
@@ -111,10 +111,17 @@ class Engine {
    * Turn on a pause mode
    */
   pause() {
-    if(this._gameStatus !== GAME_STATUS.WORK)
-      return false;
+    switch(this._gameStatus) {
+      case GAME_STATUS.WORK: 
+        this._gameStatus = GAME_STATUS.PAUSE;
+      break;
+      case GAME_STATUS.PAUSE: 
+        this._gameStatus = GAME_STATUS.WORK;
+      break;
+      default:
+        return false;
+    }
 
-    this._gameStatus = GAME_STATUS.PAUSE;
     return true;
   }
 
@@ -351,15 +358,20 @@ class Engine {
           let isShape = this._isShapeSquare(y, x);
           let val = isHeap ? 2 : isShape ? 1 : 0; 
 
-          row.push({
+          if(!isShape && !isHeap) {
+            row.push(0);
+          }            
+          else {
+            row.push({
               val: val,
-              cssClasses: [
+              css: [
                 isShape ? 'shape' : null,
                 isHeap ? 'heap' : null,
                 isShape ? this._shape.name + '' : null,
                 isHeap ? this._getHeapClass(y, x) : null
               ]
-          });
+            });
+          }
         }
         body.push(row);
 
@@ -368,14 +380,16 @@ class Engine {
   }
 
   get state() {
-    return {
+    return JSON.stringify({
       gameStatus: this._gameStatus,
       body: this._getBody(),
       shapeName: this._shape ? this._shape.name : null,
-      nextShapeName: this._nextShape ? this._nextShape.name : null,
-      nextShapeBody: this._nextShape ? this._nextShape.body : null,
+      nextShape: {
+        name: this._nextShape ? this._nextShape.name : null,
+        body: this._nextShape ? this._nextShape.bodyWithAppearance : null,
+      },    
       statistic: this._statistic
-    }
+    });
   }
 }
 

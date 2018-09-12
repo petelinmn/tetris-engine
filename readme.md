@@ -1,12 +1,12 @@
 ## tetris-engine 
-### is the light-weight javascript library for developing custom tetris-game yourself
+### is the light-weight javascript library for development custom tetris-game yourself
 
 For development, you will need webpack.
 
 ### Get Started
 
 ```js
-let Engine = require('tetris-engine').Engine;
+let Engine = require('tetris-engine');
  
 
   /**
@@ -108,4 +108,6 @@ game.start();
 
 ```
 
-### You can watch sample of using it with vue.js in https://github.com/petelinmn/tetris-engine-sample
+### You can watch sample of using it with vue.js in 
+###     https://codepen.io/peteloid/pen/dqdrYM
+###     https://github.com/petelinmn/tetris-engine-sample
