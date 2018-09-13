@@ -1,5 +1,21 @@
-module.exports = {
-    rules: {
-        'no-console': 'off',
-    }
+{
+  "parserOptions": {
+      "ecmaVersion": 6
+  },
+  "extends": ["eslint:recommended"],
+  "rules": {
+      "no-unexpected-multiline":"error",
+      "semi": ["error", "never"],
+      "indent": ["error", 2],
+      "no-trailing-spaces": "warn",
+      "valid-jsdoc":"warn",
+      "class-methods-use-this": "warn",
+      "space-infix-ops": "warn",
+      "eqeqeq": "warn",
+      "max-classes-per-file": ["error", 1],
+      "no-invalid-this": "error",
+      "no-multi-spaces": "warn",
+      "no-warning-comments": "warn",
+      "vars-on-top": "warn"
+  }
 }
