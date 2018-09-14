@@ -23,7 +23,7 @@ class Shape {
 
   /**
       * Selecting next shape from the available set of shapes
-      * @param {Object}
+      * @param {Object} shapesSet is set of shapes among that need to select
       * @returns {Array} next shape from shapesSet
       * @private
       */

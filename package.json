@@ -1,14 +1,28 @@
 {
   "name": "tetris-engine",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "description": "tetris-engine is the light-weight javascript library for developing custom tetris-game yourself",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "homepage": "https://github.com/petelinmn/tetris-engine",
-  "keywords": ["tetris", "tetrimino", "puzzle", "brick", "brickgame", "тетрис"],
+  "keywords": [
+    "tetris",
+    "tetrimino",
+    "puzzle",
+    "brick",
+    "brickgame",
+    "game",
+    "engine",
+    "game-engine"
+  ],
   "author": "petelinmn",
   "license": "ISC",
-  "devDependencies": {}
+  "devDependencies": {
+    "@babel/core": "^7.0.1",
+    "@babel/preset-env": "^7.0.0",
+    "babel-loader": "^8.0.2",
+    "webpack": "^4.19.0"
+  }
 }

@@ -2,6 +2,10 @@ html {
     background-color: #3b424c; 
 }
 
+.test-container {
+    display: flex;
+}
+
 .game-table {
     background-color:  honeydew; 
     border-spacing: 1px;
@@ -28,6 +32,9 @@ html {
 
 .statistic-list {
     color: white;
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 0;
 }
 
 .shape {

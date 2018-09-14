@@ -1,24 +1,24 @@
-let Shape = require('./shape').Shape
-let ShapeDimension = require('./shape').ShapeDimension
+import { Shape, ShapeDimension } from './shape'
+import GAME_STATUS from './game-status'
 
-let tetraShapes = require('./tetra-shapes')
+import tetraShapes from './tetra-shapes'
 
 /**
  * Implements the engine of a game
  */
 
-class Engine {
+export default class Engine {
 
   /**
    * Initializing new area
-   * @param {number} width is the width of the field of the game in squares
-   * @param {number} height is the height of the field of the game in squares
+   * @param {number} height is the width of the field of the game in squares
+   * @param {number} width is the height of the field of the game in squares
    * @param {function} renderHandle The method that will be runned every time
    *                   when game state will be changed. Receives game render data.
    * @param {Array} defaultHeap is a default heap for a game
    * @param {Object} additionalShapes is additionalShapes for a custom game
    */
-  constructor(width = 15, height = 20, renderHandle, defaultHeap, additionalShapes) {
+  constructor(height = 20, width = 15, renderHandle, defaultHeap, additionalShapes) {
     if(width <= 0 || height <= 0)
       throw 'Size parameters of the game field are incorrect'
 
@@ -37,7 +37,7 @@ class Engine {
 
     this._statistic = {
       countShapesFalled: 0,
-      countShapesFalledByType: [],
+      countShapesFalledByType: {},
       countLinesReduced: 0,
       countDoubleLinesReduced: 0,
       countTrippleLinesReduced: 0,
@@ -99,13 +99,13 @@ class Engine {
     if(this._gameStatus !== GAME_STATUS.INIT && this._gameStatus !== GAME_STATUS.PAUSE)
       return false
 
-    if(this._gameStatus == GAME_STATUS.INIT) {
+    if(this._gameStatus === GAME_STATUS.INIT) {
       this._newFigure()
       this._gameStatus = GAME_STATUS.WORK
       return true
     }
 
-    if(this._gameStatus == GAME_STATUS.PAUSE) {
+    if(this._gameStatus === GAME_STATUS.PAUSE) {
       this._gameStatus = GAME_STATUS.WORK
     }
   }
@@ -233,7 +233,7 @@ class Engine {
 
     let newHeap = []
     for (let y = 0; y < this._heap.length; y++) {
-      if(linesToRemove.indexOf(y) == -1)
+      if(linesToRemove.indexOf(y) === -1)
         newHeap.push(this._heap[y])
     }
 
@@ -394,19 +394,3 @@ class Engine {
   }
 }
 
-/**
- * Enum represents status of a game
- *
- * INIT - game was not started
- * WORK - game is running
- * PAUSE - game was temporary stopped
- * OVER - game was finished
- */
-const GAME_STATUS = {
-  INIT: 0,
-  WORK: 1,
-  PAUSE: 2,
-  OVER: 3
-}
-
-module.exports = Engine
