@@ -13,26 +13,27 @@ class Engine {
    * Initializing new area
    * @param {number} width is the width of the field of the game in squares
    * @param {number} height is the height of the field of the game in squares
-   * @param {function} renderHandle The method that will be runned every time 
+   * @param {function} renderHandle The method that will be runned every time
    *                   when game state will be changed. Receives game render data.
-   * @param {Array} default heap for a game
+   * @param {Array} defaultHeap is a default heap for a game
+   * @param {Object} additionalShapes is additionalShapes for a custom game
    */
   constructor(width = 15, height = 20, renderHandle, defaultHeap, additionalShapes) {
     if(width <= 0 || height <= 0)
       throw 'Size parameters of the game field are incorrect'
 
-    this.width = width;
-    this.height = height;
+    this.width = width
+    this.height = height
 
-    this._shapesSet = {};
+    this._shapesSet = {}
     for(let key in tetraShapes)
-      this._shapesSet[key] = tetraShapes[key];
-      
+      this._shapesSet[key] = tetraShapes[key]
+
     if(additionalShapes)
       for(let key in additionalShapes)
-        this._shapesSet[key] = additionalShapes[key];
+        this._shapesSet[key] = additionalShapes[key]
 
-    this._gameStatus = GAME_STATUS.INIT;    
+    this._gameStatus = GAME_STATUS.INIT
 
     this._statistic = {
       countShapesFalled: 0,
@@ -43,340 +44,340 @@ class Engine {
       countQuadrupleLinesReduced: 0
     }
 
-    this._heap = [];
+    this._heap = []
     if(defaultHeap && defaultHeap.length && defaultHeap[0].length) {
 
       for(let y = 0; y < defaultHeap.length; y++) {
-        let row = [];
-        for(let x = 0; x < this.width; x++) { 
+        let row = []
+        for(let x = 0; x < this.width; x++) {
           row.push({
             val: 0
-          });
+          })
         }
-        this._heap.push(row);
+        this._heap.push(row)
       }
 
-      let inversedDefaultHeap = defaultHeap.slice().reverse();
+      let inversedDefaultHeap = defaultHeap.slice().reverse()
       for(let y = 0; y < inversedDefaultHeap.length && y < this.height; y++) {
-        let row = inversedDefaultHeap[y];
+        let row = inversedDefaultHeap[y]
         for(let x = 0; x < row.length && x < this.width; x++) {
           this._heap[y][x].val = inversedDefaultHeap[y][x]
         }
       }
     }
 
-    this._checkHeapForReduce();
+    this._checkHeapForReduce()
 
     if(renderHandle) {
-      renderHandle(this.state);
-      this._renderHandle = renderHandle;
+      renderHandle(this.state)
+      this._renderHandle = renderHandle
     }
   }
 
   /**
    * Creates a new Shape
+   * @returns {void}
    */
   _newFigure() {
-    this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height);
-    this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height);
+    this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
+    this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
 
-    let countFalledShapesByThisKind = this._statistic.countShapesFalledByType[this._shape.name];
+    let countFalledShapesByThisKind = this._statistic.countShapesFalledByType[this._shape.name]
     if(!countFalledShapesByThisKind)
-      this._statistic.countShapesFalledByType[this._shape.name] = 1;
-    else 
-      this._statistic.countShapesFalledByType[this._shape.name]++;
+      this._statistic.countShapesFalledByType[this._shape.name] = 1
+    else
+      this._statistic.countShapesFalledByType[this._shape.name]++
 
-    this._statistic.countShapesFalled++;
+    this._statistic.countShapesFalled++
   }
 
   /**
    * Running a game or turn off a pause mode
+   * @returns {void}
    */
   start() {
     if(this._gameStatus !== GAME_STATUS.INIT && this._gameStatus !== GAME_STATUS.PAUSE)
-      return false;
+      return false
 
     if(this._gameStatus == GAME_STATUS.INIT) {
-      this._newFigure();
-      this._gameStatus = GAME_STATUS.WORK;
-      return true;
+      this._newFigure()
+      this._gameStatus = GAME_STATUS.WORK
+      return true
     }
-    
+
     if(this._gameStatus == GAME_STATUS.PAUSE) {
-      this._gameStatus = GAME_STATUS.WORK;
+      this._gameStatus = GAME_STATUS.WORK
     }
   }
 
   /**
    * Turn on a pause mode
+   * @returns {void}
    */
   pause() {
     switch(this._gameStatus) {
-      case GAME_STATUS.WORK: 
-        this._gameStatus = GAME_STATUS.PAUSE;
-      break;
-      case GAME_STATUS.PAUSE: 
-        this._gameStatus = GAME_STATUS.WORK;
-      break;
-      default:
-        return false;
+    case GAME_STATUS.WORK:
+      this._gameStatus = GAME_STATUS.PAUSE
+      break
+    case GAME_STATUS.PAUSE:
+      this._gameStatus = GAME_STATUS.WORK
+      break
     }
-
-    return true;
   }
 
   moveLeft() {
     if(this._gameStatus !== GAME_STATUS.WORK)
-     return;
+      return
 
     if(!this._canShapeMove(0, -1))
-      return;
+      return
 
-    this._shape.position.X--;
-    this._renderHandle(this.state);
+    this._shape.position.X--
+    this._renderHandle(this.state)
   }
 
-  moveRight() { 
+  moveRight() {
     if(this._gameStatus !== GAME_STATUS.WORK)
-     return;
+      return
 
     if(!this._canShapeMove(0, 1))
-      return;
+      return
 
-    this._shape.position.X++;
-    this._renderHandle(this.state);
+    this._shape.position.X++
+    this._renderHandle(this.state)
   }
 
-  moveUp() { 
+  moveUp() {
     if(this._gameStatus !== GAME_STATUS.WORK)
-     return;
-     
+      return
+
     if(!this._canShapeMove(1, 0))
-      return;
-    
-    this._shape.position.Y++;
-    this._renderHandle(this.state);
+      return
+
+    this._shape.position.Y++
+    this._renderHandle(this.state)
   }
 
-  moveDown() { 
+  moveDown() {
     if(this._gameStatus !== GAME_STATUS.WORK)
-     return;
+      return
 
     if(!this._canShapeMove(-1, 0)) {
       if(!this._addShapeToHeap()) {
-        this._gameStatus = GAME_STATUS.OVER;
-        this._renderHandle(this.state);
+        this._gameStatus = GAME_STATUS.OVER
+        this._renderHandle(this.state)
       }
-      return;
+      return
     }
-      
-    
-    this._shape.position.Y--;
-    this._renderHandle(this.state);
+
+
+    this._shape.position.Y--
+    this._renderHandle(this.state)
   }
 
   _addShapeToHeap() {
-    let newRowForHeap = [];
+    let newRowForHeap = []
     for(let i = 0; i < this.width; i++)
       newRowForHeap.push({
         val: 0
-      });
+      })
 
     for(let y = ShapeDimension - 1; y >= 0; y--) {
-      let row = this._shape.body[y];
-      for(let x = 0; x < ShapeDimension; x++) { 
-          let cell = row[x];
-          if(cell) {
-            let areaIndexY = this._getAreaIndexYFromShape(y);
-            
-            if(areaIndexY >= this.height) {
-              //game over :)
-              return false;
-            }
+      let row = this._shape.body[y]
+      for(let x = 0; x < ShapeDimension; x++) {
+        let cell = row[x]
+        if(cell) {
+          let areaIndexY = this._getAreaIndexYFromShape(y)
 
-            while(areaIndexY >= this._heap.length) {
-              this._heap.push(newRowForHeap.slice());
-            }
-
-            let areaIndexX = this._getAreaIndexXFromShape(x);
-            this._heap[areaIndexY][areaIndexX] = {
-              val: 1,
-              class: this._shape.name
-            };
+          if(areaIndexY >= this.height) {
+            //game over :)
+            return false
           }
+
+          while(areaIndexY >= this._heap.length) {
+            this._heap.push(newRowForHeap.slice())
+          }
+
+          let areaIndexX = this._getAreaIndexXFromShape(x)
+          this._heap[areaIndexY][areaIndexX] = {
+            val: 1,
+            class: this._shape.name
+          }
+        }
       }
     }
 
-    this._checkHeapForReduce();
+    this._checkHeapForReduce()
 
-    this._newFigure();
-    this._renderHandle(this.state);
+    this._newFigure()
+    this._renderHandle(this.state)
 
-    return true;
+    return true
   }
 
   _checkHeapForReduce() {
-    let linesToRemove = [];
+    let linesToRemove = []
     for(let y = this._heap.length - 1; y >= 0; y--) {
-      let row = this._heap[y];
-      let isThereEmptySquare = false;
-      for(let x = 0; x < row.length; x++) { 
+      let row = this._heap[y]
+      let isThereEmptySquare = false
+      for(let x = 0; x < row.length; x++) {
         if(!this._heap[y][x].val) {
-          isThereEmptySquare = true;
-          break;
+          isThereEmptySquare = true
+          break
         }
       }
 
       if(!isThereEmptySquare)
-        linesToRemove.push(y);
+        linesToRemove.push(y)
     }
 
     let newHeap = []
     for (let y = 0; y < this._heap.length; y++) {
       if(linesToRemove.indexOf(y) == -1)
-        newHeap.push(this._heap[y]);
+        newHeap.push(this._heap[y])
     }
 
-    this._statistic.countLinesReduced += linesToRemove.length;
+    this._statistic.countLinesReduced += linesToRemove.length
     switch(linesToRemove.length) {
-      case 2:
-        this._statistic.countDoubleLinesReduced++;
-        break;
-      case 3:
-        this._statistic.countTrippleLinesReduced++;
-        break;
-      case 4: 
-        this._statistic.countQuadrupleLinesReduced++;
-        break;
+    case 2:
+      this._statistic.countDoubleLinesReduced++
+      break
+    case 3:
+      this._statistic.countTrippleLinesReduced++
+      break
+    case 4:
+      this._statistic.countQuadrupleLinesReduced++
+      break
     }
 
-    this._heap = newHeap;
+    this._heap = newHeap
   }
 
-  rotate() { 
+  rotate() {
     if(this._gameStatus !== GAME_STATUS.WORK)
-     return;
-    
+      return
+
     if(!this._canShapeMove(0, 0, this._shape.getRotatedBody()))
-      return;
-      
-    this._shape.rotate();
-    this._renderHandle(this.state);
+      return
+
+    this._shape.rotate()
+    this._renderHandle(this.state)
   }
 
-  rotateBack() { 
+  rotateBack() {
     if(this._gameStatus !== GAME_STATUS.WORK)
-     return;
+      return
 
     if(!this._canShapeMove(0, 0, this._shape.getRotatedBackBody()))
-      return;
-    
-    this._shape.rotateBack();
-    this._renderHandle(this.state);
+      return
+
+    this._shape.rotateBack()
+    this._renderHandle(this.state)
   }
 
   _getShapeIndexX(x) {
-    return x - this._shape.position.X;
+    return x - this._shape.position.X
   }
 
   _getShapeIndexY(y) {
-    return this._shape.position.Y + (ShapeDimension - 1) - y;
+    return this._shape.position.Y + (ShapeDimension - 1) - y
   }
 
   _getAreaIndexXFromShape(shapeX, delta = 0) {
-    return shapeX + this._shape.position.X + delta;
+    return shapeX + this._shape.position.X + delta
   }
 
   _getAreaIndexYFromShape(shapeY, delta = 0) {
-      return this._shape.position.Y + (ShapeDimension - 1) - shapeY + delta;
+    return this._shape.position.Y + (ShapeDimension - 1) - shapeY + delta
   }
 
   /**
-   * Specifies that can a shape move. 
-   * If new coordinates of shape overlap with coordinates of heap 
+   * Specifies that can a shape move.
+   * If new coordinates of shape overlap with coordinates of heap
    * or are outside the game area the shape can't move
    * @param {*} deltaY specifies vertical moving distance
    * @param {*} deltaX specifies horizontal moving distance
    * @param {*} shapeBody specifies changed body of a shape, for example rotated body
+   * @returns {Boolean} True - shape can moves id parametrized direction, False - shape cannot move
    */
   _canShapeMove(deltaY, deltaX, shapeBody) {
     if(!shapeBody)
-      shapeBody = this._shape.body;
+      shapeBody = this._shape.body
 
     for(let y = 0; y < shapeBody.length; y++) {
-      let row = shapeBody[y];
-      let areaIndexY = this._getAreaIndexYFromShape(y, deltaY);
-      
+      let row = shapeBody[y]
+      let areaIndexY = this._getAreaIndexYFromShape(y, deltaY)
+
       for(let x = 0; x < row.length; x++) {
-        let cell = row[x];
+        let cell = row[x]
         if(cell) {
-          let areaIndexX = this._getAreaIndexXFromShape(x, deltaX);
+          let areaIndexX = this._getAreaIndexXFromShape(x, deltaX)
 
           //check will the shape go over the walls and the ground
           if(areaIndexY < 0 || areaIndexX < 0 || areaIndexX >= this.width)
-            return false;
+            return false
 
           if(this._isHeapSquare(areaIndexY, areaIndexX ))
-            return false;
+            return false
         }
       }
     }
 
-    return true;
+    return true
   }
 
   _isShapeSquare(y, x) {
-      if(!this._shape || !this._shape.body)
-        return false;
-      let row = this._shape.body[this._getShapeIndexY(y)];
-      return row && row[this._getShapeIndexX(x)];
+    if(!this._shape || !this._shape.body)
+      return false
+    let row = this._shape.body[this._getShapeIndexY(y)]
+    return row && row[this._getShapeIndexX(x)]
   }
 
   _isHeapSquare(y, x) {
     if(!this._heap)
-      return false;
+      return false
 
-    return this._heap[y] && this._heap[y][x].val;
+    return this._heap[y] && this._heap[y][x].val
   }
 
   _getHeapClass(y, x) {
     if(!this._heap)
-      return;
+      return
 
     if(!this._heap[y] || !this._heap[y][x].val)
-      return;
+      return
 
-    return this._heap[y][x].class;
+    return this._heap[y][x].class
   }
 
   _getBody() {
-    let body = [];
+    let body = []
     for (let y = this.height - 1; y >= 0; y--) {
-        let row = [];
-        for (let x = 0; x < this.width; x++) {
-          let isHeap = this._isHeapSquare(y, x);
-          let isShape = this._isShapeSquare(y, x);
-          let val = isHeap ? 2 : isShape ? 1 : 0; 
+      let row = []
+      for (let x = 0; x < this.width; x++) {
+        let isHeap = this._isHeapSquare(y, x)
+        let isShape = this._isShapeSquare(y, x)
+        let val = isHeap ? 2 : isShape ? 1 : 0
 
-          if(!isShape && !isHeap) {
-            row.push(0);
-          }            
-          else {
-            row.push({
-              val: val,
-              css: [
-                isShape ? 'shape' : null,
-                isHeap ? 'heap' : null,
-                isShape ? this._shape.name + '' : null,
-                isHeap ? this._getHeapClass(y, x) : null
-              ]
-            });
-          }
+        if(!isShape && !isHeap) {
+          row.push(0)
         }
-        body.push(row);
+        else {
+          row.push({
+            val: val,
+            css: [
+              isShape ? 'shape' : null,
+              isHeap ? 'heap' : null,
+              isShape ? this._shape.name + '' : null,
+              isHeap ? this._getHeapClass(y, x) : null
+            ]
+          })
+        }
+      }
+      body.push(row)
 
     }
-    return body;
+    return body
   }
 
   get state() {
@@ -387,15 +388,15 @@ class Engine {
       nextShape: {
         name: this._nextShape ? this._nextShape.name : null,
         body: this._nextShape ? this._nextShape.bodyWithAppearance : null,
-      },    
+      },
       statistic: this._statistic
-    });
+    })
   }
 }
 
 /**
  * Enum represents status of a game
- * 
+ *
  * INIT - game was not started
  * WORK - game is running
  * PAUSE - game was temporary stopped
@@ -408,4 +409,4 @@ const GAME_STATUS = {
   OVER: 3
 }
 
-module.exports = Engine;
+module.exports = Engine
