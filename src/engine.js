@@ -32,6 +32,26 @@ export default class Engine {
     this.width = options.width
     this.height = options.height
 
+    if(!options.players || !options.players.isArray())
+      this.players = {
+        'Player': {
+          stat: this._newStatistic()
+        }
+      }
+    else {
+      this.players = {}
+      for(let i = 0; i < options.players.length; i++) {
+        let player = options.players[i]
+        if(this.players[player])
+          throw new Error('multiple user name!')
+        else
+          this.players[player] = {
+            stat: this._newStatistic()
+          }
+      }
+    }
+
+
     this._renderHandle = options.renderHandle
 
     this._shapesSet = {}
@@ -80,11 +100,26 @@ export default class Engine {
     this._renderHandle(this.state)
   }
 
+  static _newStatistic() {
+    return {
+      countShapesFalled: 0,
+      countShapesFalledByType: {},
+      countLinesReduced: 0,
+      countDoubleLinesReduced: 0,
+      countTrippleLinesReduced: 0,
+      countQuadrupleLinesReduced: 0
+    }
+  }
+
   /**
    * Creates a new Shape
+   * @param {*} playerId is id of player, who need receive new shape
    * @returns {void}
    */
-  _newFigure() {
+  _newFigure(playerId = null) {
+
+
+
     this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
     this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
 

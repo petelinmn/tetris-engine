@@ -113,6 +113,7 @@ var Engine =
 function () {
   /**
    * Initializing new area
+   * @param {Object} options is the container for following options:
    * @param {number} height is the width of the field of the game in squares
    * @param {number} width is the height of the field of the game in squares
    * @param {function} renderHandle The method that will be runned every time
@@ -120,26 +121,23 @@ function () {
    * @param {Array} defaultHeap is a default heap for a game
    * @param {Object} additionalShapes is additionalShapes for a custom game
    */
-  function Engine() {
-    var height = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 20;
-    var width = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 15;
-    var renderHandle = arguments.length > 2 ? arguments[2] : undefined;
-    var defaultHeap = arguments.length > 3 ? arguments[3] : undefined;
-    var additionalShapes = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Engine(options) {
     _classCallCheck(this, Engine);
 
-    if (width <= 0 || height <= 0) throw 'Size parameters of the game field are incorrect';
-    this.width = width;
-    this.height = height;
+    if (!options) throw new Error('Options not defined');
+    if (!options.width || !options.height) throw new Error('Size parameters of the game field are incorrect');
+    if (!options.renderHandle || typeof options.renderHandle !== 'function') throw new Error('renderHandle not defined!');
+    this.width = options.width;
+    this.height = options.height;
+    this._renderHandle = options.renderHandle;
     this._shapesSet = {};
 
     for (var key in _tetra_shapes__WEBPACK_IMPORTED_MODULE_2__["default"]) {
       this._shapesSet[key] = _tetra_shapes__WEBPACK_IMPORTED_MODULE_2__["default"][key];
     }
 
-    if (additionalShapes) for (var _key in additionalShapes) {
-      this._shapesSet[_key] = additionalShapes[_key];
+    if (options.additionalShapes) for (var _key in options.additionalShapes) {
+      this._shapesSet[_key] = options.additionalShapes[_key];
     }
     this._gameStatus = _game_status__WEBPACK_IMPORTED_MODULE_1__["default"].INIT;
     this._statistic = {
@@ -152,8 +150,8 @@ function () {
     };
     this._heap = [];
 
-    if (defaultHeap && defaultHeap.length && defaultHeap[0].length) {
-      for (var y = 0; y < defaultHeap.length; y++) {
+    if (options.defaultHeap && options.defaultHeap.length && options.defaultHeap[0].length) {
+      for (var y = 0; y < options.defaultHeap.length; y++) {
         var row = [];
 
         for (var x = 0; x < this.width; x++) {
@@ -165,7 +163,7 @@ function () {
         this._heap.push(row);
       }
 
-      var inversedDefaultHeap = defaultHeap.slice().reverse();
+      var inversedDefaultHeap = options.defaultHeap.slice().reverse();
 
       for (var _y = 0; _y < inversedDefaultHeap.length && _y < this.height; _y++) {
         var _row = inversedDefaultHeap[_y];
@@ -178,10 +176,7 @@ function () {
 
     this._checkHeapForReduce();
 
-    if (renderHandle) {
-      renderHandle(this.state);
-      this._renderHandle = renderHandle;
-    }
+    this._renderHandle(this.state);
   }
   /**
    * Creates a new Shape
@@ -451,6 +446,21 @@ function () {
       return true;
     }
   }, {
+    key: "setNextShape",
+    value: function setNextShape(key) {
+      switch (key) {
+        case 'i':
+          this._nextShape = new _shape__WEBPACK_IMPORTED_MODULE_0__["Shape"](this._shapesSet);
+          this._nextShape._shape = this._shapesSet["IShape"].slice();
+          break;
+
+        case 'o':
+          this._nextShape = new _shape__WEBPACK_IMPORTED_MODULE_0__["Shape"](this._shapesSet);
+          this._nextShape._shape = this._shapesSet["OShape"].slice();
+          break;
+      }
+    }
+  }, {
     key: "_isShapeSquare",
     value: function _isShapeSquare(y, x) {
       if (!this._shape || !this._shape.body) return false;
@@ -490,10 +500,29 @@ function () {
           if (!isShape && !isHeap) {
             row.push(0);
           } else {
-            row.push({
-              val: val,
-              css: [isShape ? 'shape' : null, isHeap ? 'heap' : null, isShape ? this._shape.name + '' : null, isHeap ? this._getHeapClass(y, x) : null]
-            });
+            var newCell = {
+              val: val
+            };
+            var css = [];
+
+            if (isShape) {
+              css.push('shape');
+              css.push(this._shape.name);
+            }
+
+            if (isHeap) {
+              css.push('heap');
+
+              var heapClass = this._getHeapClass(y, x);
+
+              if (heapClass) css.push(heapClass);
+            }
+
+            if (css.length) {
+              newCell.css = css;
+            }
+
+            row.push(newCell);
           }
         }
 
@@ -505,7 +534,7 @@ function () {
   }, {
     key: "state",
     get: function get() {
-      return JSON.stringify({
+      return {
         gameStatus: this._gameStatus,
         body: this._getBody(),
         shapeName: this._shape ? this._shape.name : null,
@@ -514,7 +543,7 @@ function () {
           body: this._nextShape ? this._nextShape.bodyWithAppearance : null
         },
         statistic: this._statistic
-      });
+      };
     }
   }]);
 
@@ -555,7 +584,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!**********************!*\
   !*** ./src/index.js ***!
   \**********************/
-/*! exports provided: Engine, tetraShapes */
+/*! exports provided: Engine, TetraShapes, GameStatus */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -564,7 +593,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Engine", function() { return _engine__WEBPACK_IMPORTED_MODULE_0__["default"]; });
 
 /* harmony import */ var _tetra_shapes__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./tetra-shapes */ "./src/tetra-shapes.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "tetraShapes", function() { return _tetra_shapes__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TetraShapes", function() { return _tetra_shapes__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+
+/* harmony import */ var _game_status__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./game-status */ "./src/game-status.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "GameStatus", function() { return _game_status__WEBPACK_IMPORTED_MODULE_2__["default"]; });
+
 
 
 
@@ -754,14 +787,15 @@ function () {
     get: function get() {
       var body = [];
 
-      for (var x = 0; x < ShapeDimension; x++) {
+      for (var x = ShapeDimension - 1; x >= 0; x--) {
         var newRow = [];
 
         for (var y = 0; y < ShapeDimension; y++) {
-          newRow.push({
-            val: this._shape[y][x],
-            css: this._shape[y][x] ? 'shape ' + this.name : null
-          });
+          var newCell = {
+            val: this._shape[y][x]
+          };
+          if (this._shape[y][x]) newCell.css = 'shape ' + this.name;
+          newRow.push(newCell);
         }
 
         body.push(newRow);

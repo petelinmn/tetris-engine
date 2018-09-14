@@ -56,14 +56,7 @@ let App = new Vue({
     },
     onKeyDown(e) {
       if (e && e.key && this) {
-        console.log(e.key);
         switch (e.key) {
-          case 'i':
-          this.$gameEngine.setNextShape(e.key)
-          break
-        case 'o':
-          this.$gameEngine.setNextShape(e.key)
-          break
         case 'Insert':
           this.$gameEngine.rotateBack()
           break
@@ -112,7 +105,11 @@ let App = new Vue({
       width: 70,
       defaultHeap: defaultHeap,
       addittionalShapes: addittionalShapes,
-      renderHandle: self.render
+      renderHandle: self.render,
+      players: [
+        'Max',
+        'Oxana'
+      ]
     }
     console.log(options);
     this.$gameEngine = new Engine(options)
