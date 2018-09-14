@@ -147,13 +147,18 @@ class Shape {
   get bodyWithAppearance() {
     let body = []
 
-    for (let x = 0; x < ShapeDimension; x++) {
+    for (let x = ShapeDimension - 1; x >= 0; x--) {
       let newRow = []
       for (let y = 0; y < ShapeDimension; y++) {
-        newRow.push({
-          val: this._shape[y][x],
-          css: this._shape[y][x] ? 'shape ' + this.name : null
-        })
+
+        let newCell = {
+          val: this._shape[y][x]
+        }
+
+        if(this._shape[y][x])
+          newCell.css = 'shape ' + this.name
+
+        newRow.push(newCell)
       }
       body.push(newRow)
     }

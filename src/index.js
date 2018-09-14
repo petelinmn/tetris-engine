@@ -1,4 +1,5 @@
 import Engine from './engine'
-import tetraShapes from './tetra-shapes'
+import TetraShapes from './tetra-shapes'
+import GameStatus from './game-status'
 
-export { Engine, tetraShapes }
+export { Engine, TetraShapes, GameStatus }

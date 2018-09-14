@@ -11,6 +11,7 @@ export default class Engine {
 
   /**
    * Initializing new area
+   * @param {Object} options is the container for following options:
    * @param {number} height is the width of the field of the game in squares
    * @param {number} width is the height of the field of the game in squares
    * @param {function} renderHandle The method that will be runned every time
@@ -18,20 +19,28 @@ export default class Engine {
    * @param {Array} defaultHeap is a default heap for a game
    * @param {Object} additionalShapes is additionalShapes for a custom game
    */
-  constructor(height = 20, width = 15, renderHandle, defaultHeap, additionalShapes) {
-    if(width <= 0 || height <= 0)
-      throw 'Size parameters of the game field are incorrect'
+  constructor(options) {
+    if(!options)
+      throw new Error('Options not defined')
 
-    this.width = width
-    this.height = height
+    if(!options.width || !options.height)
+      throw new Error('Size parameters of the game field are incorrect')
+
+    if(!options.renderHandle || typeof options.renderHandle !== 'function')
+      throw new Error('renderHandle not defined!')
+
+    this.width = options.width
+    this.height = options.height
+
+    this._renderHandle = options.renderHandle
 
     this._shapesSet = {}
     for(let key in tetraShapes)
       this._shapesSet[key] = tetraShapes[key]
 
-    if(additionalShapes)
-      for(let key in additionalShapes)
-        this._shapesSet[key] = additionalShapes[key]
+    if(options.additionalShapes)
+      for(let key in options.additionalShapes)
+        this._shapesSet[key] = options.additionalShapes[key]
 
     this._gameStatus = GAME_STATUS.INIT
 
@@ -45,9 +54,9 @@ export default class Engine {
     }
 
     this._heap = []
-    if(defaultHeap && defaultHeap.length && defaultHeap[0].length) {
+    if(options.defaultHeap && options.defaultHeap.length && options.defaultHeap[0].length) {
 
-      for(let y = 0; y < defaultHeap.length; y++) {
+      for(let y = 0; y < options.defaultHeap.length; y++) {
         let row = []
         for(let x = 0; x < this.width; x++) {
           row.push({
@@ -57,7 +66,7 @@ export default class Engine {
         this._heap.push(row)
       }
 
-      let inversedDefaultHeap = defaultHeap.slice().reverse()
+      let inversedDefaultHeap = options.defaultHeap.slice().reverse()
       for(let y = 0; y < inversedDefaultHeap.length && y < this.height; y++) {
         let row = inversedDefaultHeap[y]
         for(let x = 0; x < row.length && x < this.width; x++) {
@@ -68,10 +77,7 @@ export default class Engine {
 
     this._checkHeapForReduce()
 
-    if(renderHandle) {
-      renderHandle(this.state)
-      this._renderHandle = renderHandle
-    }
+    this._renderHandle(this.state)
   }
 
   /**
@@ -326,6 +332,19 @@ export default class Engine {
     return true
   }
 
+  setNextShape(key) {
+    switch(key) {
+    case 'i':
+      this._nextShape = new Shape(this._shapesSet)
+      this._nextShape._shape = this._shapesSet["IShape"].slice()
+      break
+    case 'o':
+      this._nextShape = new Shape(this._shapesSet)
+      this._nextShape._shape = this._shapesSet["OShape"].slice()
+      break
+    }
+  }
+
   _isShapeSquare(y, x) {
     if(!this._shape || !this._shape.body)
       return false
@@ -363,15 +382,29 @@ export default class Engine {
           row.push(0)
         }
         else {
-          row.push({
-            val: val,
-            css: [
-              isShape ? 'shape' : null,
-              isHeap ? 'heap' : null,
-              isShape ? this._shape.name + '' : null,
-              isHeap ? this._getHeapClass(y, x) : null
-            ]
-          })
+
+          let newCell = {
+            val: val
+          }
+
+          let css = []
+          if(isShape) {
+            css.push('shape')
+            css.push(this._shape.name)
+          }
+
+          if(isHeap) {
+            css.push('heap')
+            let heapClass = this._getHeapClass(y, x)
+            if(heapClass)
+              css.push(heapClass)
+          }
+
+          if(css.length) {
+            newCell.css = css
+          }
+
+          row.push(newCell)
         }
       }
       body.push(row)
@@ -381,7 +414,7 @@ export default class Engine {
   }
 
   get state() {
-    return JSON.stringify({
+    return {
       gameStatus: this._gameStatus,
       body: this._getBody(),
       shapeName: this._shape ? this._shape.name : null,
@@ -390,7 +423,7 @@ export default class Engine {
         body: this._nextShape ? this._nextShape.bodyWithAppearance : null,
       },
       statistic: this._statistic
-    })
+    }
   }
 }
 

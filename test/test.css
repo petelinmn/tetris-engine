@@ -8,7 +8,7 @@ html {
 
 .game-table {
     background-color:  honeydew; 
-    border-spacing: 1px;
+    border-spacing: 0px;
     font-size: 9px;
     float:left;
     border: 2px solid black;
@@ -19,10 +19,12 @@ html {
     width: 16px;
     height: 16px;
     padding: 0;
+    border: 1px solid honeydew;
 }
 
 .shape-table {
-    background-color: coral;
+    background-color: #cef6f0;
+    border: 1px solid black;
 }
 
 .shape-table td {
@@ -39,6 +41,7 @@ html {
 
 .shape {
     background-color: #0d102d6b;
+    border-color: darkcyan
 }
 
 .shape.LShape {
@@ -99,7 +102,7 @@ html {
 
 
 .heap {
-    background-color: darkkhaki;
+    background-color: darkgrey;
 }
 
 .leftEdge {

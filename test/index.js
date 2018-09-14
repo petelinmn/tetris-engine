@@ -1,8 +1,6 @@
 
 let Engine = tetrisEngine.Engine
 
-console.log(tetrisEngine)
-
 let App = new Vue({
   template:
         `
@@ -52,17 +50,20 @@ let App = new Vue({
   },
   methods: {
     render(gameState) {
-      console.log(gameState)
-      var gameState = JSON.parse(gameState)
       if(gameState.gameStatus == 3)
         alert('game over')
       this.gameState = gameState
-      console.log(gameState.body)
-      console.error(memorySizeOf(gameState.body))
     },
     onKeyDown(e) {
       if (e && e.key && this) {
+        console.log(e.key);
         switch (e.key) {
+          case 'i':
+          this.$gameEngine.setNextShape(e.key)
+          break
+        case 'o':
+          this.$gameEngine.setNextShape(e.key)
+          break
         case 'Insert':
           this.$gameEngine.rotateBack()
           break
@@ -87,22 +88,42 @@ let App = new Vue({
   },
   beforeMount() {
 
-    let areaHeight = 15
-    let areaWidth = 15
+    let areaHeight = 50
+    let areaWidth = 80
 
     let defaultHeap = [
-      [0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+      [1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
+      [1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
     ]
 
-    this.$gameEngine = new Engine(areaHeight, areaWidth, this.render, null)
+    let addittionalShapes = {
+      "MyShape": [
+        [0,1,0],
+        [0,1,0]
+      ]
+    }
+
+    var self = this
+    console.log(self.render);
+    let options = {
+      height: 30,
+      width: 70,
+      defaultHeap: defaultHeap,
+      addittionalShapes: addittionalShapes,
+      renderHandle: self.render
+    }
+    console.log(options);
+    this.$gameEngine = new Engine(options)
 
     window.document.body.addEventListener('keydown', this.onKeyDown.bind(this))
+
+    window.document.body.addEventListener('keypress', (p1, p2, p3 ) => {
+      console.log(p1);
+      console.log(p2);
+      console.log(p3);
+    })
 
     this.$gameEngine.start()
     setInterval(()=>{
@@ -110,43 +131,3 @@ let App = new Vue({
     }, 1000)
   }
 })
-
-
-function memorySizeOf(obj) {
-  var bytes = 0
-
-  function sizeOf(obj) {
-    if(obj !== null && obj !== undefined) {
-      switch(typeof obj) {
-      case 'number':
-        bytes += 8
-        break
-      case 'string':
-        bytes += obj.length * 2
-        break
-      case 'boolean':
-        bytes += 4
-        break
-      case 'object':
-        var objClass = Object.prototype.toString.call(obj).slice(8, -1)
-        if(objClass === 'Object' || objClass === 'Array') {
-          for(var key in obj) {
-            if(!obj.hasOwnProperty(key)) continue
-            sizeOf(obj[key])
-          }
-        } else bytes += obj.toString().length * 2
-        break
-      }
-    }
-    return bytes
-  }
-
-  function formatByteSize(bytes) {
-    if(bytes < 1024) return bytes + " bytes"
-    else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + " KiB"
-    else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + " MiB"
-    else return(bytes / 1073741824).toFixed(3) + " GiB"
-  }
-
-  return formatByteSize(sizeOf(obj))
-}
