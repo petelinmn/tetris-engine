@@ -46,17 +46,32 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -92,7 +107,6 @@ return /******/ (function(modules) { // webpackBootstrap
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Engine; });
 /* harmony import */ var _shape__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./shape */ "./src/shape.js");
-/* harmony import */ var _shape__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_shape__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _game_status__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./game-status */ "./src/game-status.js");
 /* harmony import */ var _tetra_shapes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./tetra-shapes */ "./src/tetra-shapes.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -127,8 +141,24 @@ function () {
     if (!options) throw new Error('Options not defined');
     if (!options.width || !options.height) throw new Error('Size parameters of the game field are incorrect');
     if (!options.renderHandle || typeof options.renderHandle !== 'function') throw new Error('renderHandle not defined!');
+    var self = this;
     this.width = options.width;
     this.height = options.height;
+    if (!options.players) this.players = {
+      'Player': {
+        stat: this._newStatistic()
+      }
+    };else {
+      this.players = {};
+
+      for (var i = 0; i < options.players.length; i++) {
+        var player = options.players[i];
+        if (this.players[player]) throw new Error('multiple user name!');else this.players[player] = {
+          name: player,
+          stat: self._newStatistic()
+        };
+      }
+    }
     this._renderHandle = options.renderHandle;
     this._shapesSet = {};
 
@@ -140,14 +170,7 @@ function () {
       this._shapesSet[_key] = options.additionalShapes[_key];
     }
     this._gameStatus = _game_status__WEBPACK_IMPORTED_MODULE_1__["default"].INIT;
-    this._statistic = {
-      countShapesFalled: 0,
-      countShapesFalledByType: {},
-      countLinesReduced: 0,
-      countDoubleLinesReduced: 0,
-      countTrippleLinesReduced: 0,
-      countQuadrupleLinesReduced: 0
-    };
+    this._statistic = this._newStatistic();
     this._heap = [];
 
     if (options.defaultHeap && options.defaultHeap.length && options.defaultHeap[0].length) {
@@ -178,20 +201,45 @@ function () {
 
     this._renderHandle(this.state);
   }
-  /**
-   * Creates a new Shape
-   * @returns {void}
-   */
-
 
   _createClass(Engine, [{
+    key: "_newStatistic",
+    value: function _newStatistic() {
+      return {
+        countShapesFalled: 0,
+        countShapesFalledByType: {},
+        countLinesReduced: 0,
+        countDoubleLinesReduced: 0,
+        countTrippleLinesReduced: 0,
+        countQuadrupleLinesReduced: 0
+      };
+    }
+    /**
+     * Creates a new Shape
+     * @param {*} playerName is name of player, who need receive new shape
+     * @returns {void}
+     */
+
+  }, {
     key: "_newFigure",
     value: function _newFigure() {
-      this._shape = this._nextShape ? this._nextShape : new _shape__WEBPACK_IMPORTED_MODULE_0__["Shape"](this._shapesSet, parseInt(this.width / 2 - 3), this.height);
-      this._nextShape = new _shape__WEBPACK_IMPORTED_MODULE_0__["Shape"](this._shapesSet, parseInt(this.width / 2 - 3), this.height);
-      var countFalledShapesByThisKind = this._statistic.countShapesFalledByType[this._shape.name];
-      if (!countFalledShapesByThisKind) this._statistic.countShapesFalledByType[this._shape.name] = 1;else this._statistic.countShapesFalledByType[this._shape.name]++;
-      this._statistic.countShapesFalled++;
+      var playerName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+      for (var name in this.players) {
+        if (!playerName || name === playerName) {
+          var player = this.players[name];
+          player.shape = player.nextShape ? player.nextShape : new _shape__WEBPACK_IMPORTED_MODULE_0__["default"](this._shapesSet, parseInt(this.width / 2 - 3), this.height);
+          player.nextShape = new _shape__WEBPACK_IMPORTED_MODULE_0__["default"](this._shapesSet, parseInt(this.width / 2 - 3), this.height);
+          var countShapesFalledByType = player.stat.countShapesFalledByType[player.shape.name];
+          if (!countShapesFalledByType) player.stat._statistic.countShapesFalledByType[player.shape.name] = 1;else player.stat._statistic.countShapesFalledByType[player.shape.name]++;
+          player.stat.countShapesFalled++;
+          countShapesFalledByType = this._statistic.countShapesFalledByType[player.shape.name];
+          if (!countShapesFalledByType) this._statistic.countShapesFalledByType[player.shape.name] = 1;else this._statistic.countShapesFalledByType[player.shape.name]++;
+          this._statistic.countShapesFalled++;
+        }
+      } //this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
+      //this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
+
     }
     /**
      * Running a game or turn off a pause mode
@@ -289,10 +337,10 @@ function () {
         });
       }
 
-      for (var y = _shape__WEBPACK_IMPORTED_MODULE_0__["ShapeDimension"] - 1; y >= 0; y--) {
+      for (var y = ShapeDimension - 1; y >= 0; y--) {
         var row = this._shape.body[y];
 
-        for (var x = 0; x < _shape__WEBPACK_IMPORTED_MODULE_0__["ShapeDimension"]; x++) {
+        for (var x = 0; x < ShapeDimension; x++) {
           var cell = row[x];
 
           if (cell) {
@@ -396,7 +444,7 @@ function () {
   }, {
     key: "_getShapeIndexY",
     value: function _getShapeIndexY(y) {
-      return this._shape.position.Y + (_shape__WEBPACK_IMPORTED_MODULE_0__["ShapeDimension"] - 1) - y;
+      return this._shape.position.Y + (ShapeDimension - 1) - y;
     }
   }, {
     key: "_getAreaIndexXFromShape",
@@ -408,7 +456,7 @@ function () {
     key: "_getAreaIndexYFromShape",
     value: function _getAreaIndexYFromShape(shapeY) {
       var delta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      return this._shape.position.Y + (_shape__WEBPACK_IMPORTED_MODULE_0__["ShapeDimension"] - 1) - shapeY + delta;
+      return this._shape.position.Y + (ShapeDimension - 1) - shapeY + delta;
     }
     /**
      * Specifies that can a shape move.
@@ -450,12 +498,12 @@ function () {
     value: function setNextShape(key) {
       switch (key) {
         case 'i':
-          this._nextShape = new _shape__WEBPACK_IMPORTED_MODULE_0__["Shape"](this._shapesSet);
+          this._nextShape = new _shape__WEBPACK_IMPORTED_MODULE_0__["default"](this._shapesSet);
           this._nextShape._shape = this._shapesSet["IShape"].slice();
           break;
 
         case 'o':
-          this._nextShape = new _shape__WEBPACK_IMPORTED_MODULE_0__["Shape"](this._shapesSet);
+          this._nextShape = new _shape__WEBPACK_IMPORTED_MODULE_0__["default"](this._shapesSet);
           this._nextShape._shape = this._shapesSet["OShape"].slice();
           break;
       }
@@ -609,9 +657,12 @@ __webpack_require__.r(__webpack_exports__);
 /*!**********************!*\
   !*** ./src/shape.js ***!
   \**********************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Shape; });
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -641,6 +692,7 @@ function () {
       X: X,
       Y: Y
     };
+    this.ShapeDimension = 5;
 
     this._calculateProperties();
   }
@@ -848,10 +900,7 @@ function () {
   return Shape;
 }();
 
-module.exports = {
-  Shape: Shape,
-  ShapeDimension: ShapeDimension
-};
+
 
 /***/ }),
 

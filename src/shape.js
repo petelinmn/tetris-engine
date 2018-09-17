@@ -6,7 +6,7 @@ const ShapeDimension = 5
 /**
  * Implements a falling shape
  */
-class Shape {
+export default class Shape {
   constructor(shapesSet, X = 5, Y = 12) {
     if(!shapesSet)
       throw new Error('Set of shapes was not setted!')
@@ -17,6 +17,8 @@ class Shape {
       X: X,
       Y: Y
     }
+
+    this.ShapeDimension = 5
 
     this._calculateProperties()
   }
@@ -197,9 +199,4 @@ class Shape {
   get paddingLeft() {
     return this._paddingLeft
   }
-}
-
-module.exports = {
-  Shape,
-  ShapeDimension
 }

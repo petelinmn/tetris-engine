@@ -1,4 +1,4 @@
-import { Shape, ShapeDimension } from './shape'
+import Shape from './shape'
 import GAME_STATUS from './game-status'
 
 import tetraShapes from './tetra-shapes'
@@ -29,10 +29,11 @@ export default class Engine {
     if(!options.renderHandle || typeof options.renderHandle !== 'function')
       throw new Error('renderHandle not defined!')
 
+    let self = this
     this.width = options.width
     this.height = options.height
 
-    if(!options.players || !options.players.isArray())
+    if(!options.players)
       this.players = {
         'Player': {
           stat: this._newStatistic()
@@ -46,11 +47,11 @@ export default class Engine {
           throw new Error('multiple user name!')
         else
           this.players[player] = {
-            stat: this._newStatistic()
+            name: player,
+            stat: self._newStatistic()
           }
       }
     }
-
 
     this._renderHandle = options.renderHandle
 
@@ -64,18 +65,10 @@ export default class Engine {
 
     this._gameStatus = GAME_STATUS.INIT
 
-    this._statistic = {
-      countShapesFalled: 0,
-      countShapesFalledByType: {},
-      countLinesReduced: 0,
-      countDoubleLinesReduced: 0,
-      countTrippleLinesReduced: 0,
-      countQuadrupleLinesReduced: 0
-    }
+    this._statistic = this._newStatistic()
 
     this._heap = []
     if(options.defaultHeap && options.defaultHeap.length && options.defaultHeap[0].length) {
-
       for(let y = 0; y < options.defaultHeap.length; y++) {
         let row = []
         for(let x = 0; x < this.width; x++) {
@@ -100,7 +93,7 @@ export default class Engine {
     this._renderHandle(this.state)
   }
 
-  static _newStatistic() {
+  _newStatistic() {
     return {
       countShapesFalled: 0,
       countShapesFalledByType: {},
@@ -113,23 +106,40 @@ export default class Engine {
 
   /**
    * Creates a new Shape
-   * @param {*} playerId is id of player, who need receive new shape
+   * @param {*} playerName is name of player, who need receive new shape
    * @returns {void}
    */
-  _newFigure(playerId = null) {
+  _newFigure(playerName = null) {
 
 
+    for (let name in this.players) {
+      if(!playerName || name === playerName) {
+        let player = this.players[name]
+        player.shape = player.nextShape ? player.nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
+        player.nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
 
-    this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
-    this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
+        let countShapesFalledByType = player.stat.countShapesFalledByType[player.shape.name]
+        if(!countShapesFalledByType)
+          player.stat._statistic.countShapesFalledByType[player.shape.name] = 1
+        else
+          player.stat._statistic.countShapesFalledByType[player.shape.name]++
 
-    let countFalledShapesByThisKind = this._statistic.countShapesFalledByType[this._shape.name]
-    if(!countFalledShapesByThisKind)
-      this._statistic.countShapesFalledByType[this._shape.name] = 1
-    else
-      this._statistic.countShapesFalledByType[this._shape.name]++
 
-    this._statistic.countShapesFalled++
+        player.stat.countShapesFalled++
+
+        countShapesFalledByType = this._statistic.countShapesFalledByType[player.shape.name]
+        if(!countShapesFalledByType)
+          this._statistic.countShapesFalledByType[player.shape.name] = 1
+        else
+          this._statistic.countShapesFalledByType[player.shape.name]++
+
+        this._statistic.countShapesFalled++
+      }
+    }
+    //this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
+    //this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
+
+
   }
 
   /**

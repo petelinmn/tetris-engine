@@ -10,7 +10,6 @@
       "indent": ["error", 2],
       "no-trailing-spaces": "warn",
       "valid-jsdoc":"warn",
-      "class-methods-use-this": "warn",
       "space-infix-ops": "warn",
       "eqeqeq": "warn",
       "max-classes-per-file": ["error", 1],
