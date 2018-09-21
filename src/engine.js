@@ -35,6 +35,8 @@ export default class Engine {
     this.width = options.width
     this.height = options.height
 
+    this._players = options.players
+
     if(!options.players)
       this.players = {
         'Player': {
@@ -111,14 +113,15 @@ export default class Engine {
    * @param {*} playerName is name of player, who need receive new shape
    * @returns {void}
    */
-  _newFigure(playerName = null) {
-
-
+  _newShape(playerName = null) {
+    let playerIndex = 0
     for (let name in this.players) {
+      playerIndex++
       if(!playerName || name === playerName) {
         let player = this.players[name]
-        player.shape = player.nextShape ? player.nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
-        player.nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
+        let displayPart = parseInt(playerIndex * (this.width / (this._players.length + 1)) - 1)
+        player.shape = player.nextShape ? player.nextShape : new Shape(this._shapesSet, displayPart, this.height)
+        player.nextShape = new Shape(this._shapesSet, displayPart, this.height)
 
         let countShapesFalledByType = player.stat.countShapesFalledByType[player.shape.name]
         if(!countShapesFalledByType)
@@ -153,7 +156,7 @@ export default class Engine {
       return false
 
     if(this._gameStatus === GAME_STATUS.INIT) {
-      this._newFigure()
+      this._newShape()
       this._gameStatus = GAME_STATUS.WORK
       return true
     }
@@ -219,7 +222,13 @@ export default class Engine {
       return
 
     let player = this._getPlayerByName(playerName)
-    if(!this._canShapeMove(playerName, -1, 0)) {
+    let canShapeMoveResult = this._canShapeMove(playerName, -1, 0)
+
+    if(canShapeMoveResult === -1) {
+      return
+    }
+
+    if(!canShapeMoveResult) {
       if(!this._addShapeToHeap(player)) {
         this._gameStatus = GAME_STATUS.OVER
         this._renderHandle(this.state)
@@ -228,6 +237,53 @@ export default class Engine {
     }
 
     player.shape.position.Y--
+    this._renderHandle(this.state)
+  }
+
+  moveDownAll() {
+    if(this._gameStatus !== GAME_STATUS.WORK) {
+      return
+    }
+
+    let movedDownPlayers = {}
+    for(let name in this.players) {
+      movedDownPlayers[name] = false
+    }
+
+    let fuse = 0
+    console.log('perpetual cycle')
+    for (;;) {
+      if(++fuse > 1000) {
+        console.error('fuse tripped')
+        break
+      }
+
+      let countMovedShapes = 0
+      for(let name in movedDownPlayers) {
+        if(movedDownPlayers[name])
+          countMovedShapes++
+      }
+
+      let allShapesMoved = true
+      for(let name in movedDownPlayers) {
+        if(!movedDownPlayers[name]) {
+          if(this._canShapeMove(name, -1, 0)) {
+            this.players[name].shape.position.Y--
+            movedDownPlayers[name] = true
+          } else {
+            if(countMovedShapes === this._players.length - 1) {
+              // this._gameStatus = GAME_STATUS.OVER
+            }
+
+            allShapesMoved = false
+          }
+        }
+      }
+
+      if(allShapesMoved || this._gameStatus === GAME_STATUS.OVER)
+        break
+    }
+
     this._renderHandle(this.state)
   }
 
@@ -290,7 +346,7 @@ export default class Engine {
 
     this._checkHeapForReduce()
 
-    this._newFigure()
+    this._newShape(player.name)
     this._renderHandle(this.state)
 
     return true
@@ -383,12 +439,40 @@ export default class Engine {
         if(cell) {
           let areaIndexX = this._getAreaIndexXFromShape(player.shape, x, deltaX)
 
-          //check will the shape go over the walls and the ground
-          if(areaIndexY < 0 || areaIndexX < 0 || areaIndexX >= this.width)
+          //check will the shape go over the walls
+          if(areaIndexY < 0 || areaIndexX < 0 || areaIndexX >= this.width) {
             return false
+          }
 
-          if(this._isHeapSquare(areaIndexY, areaIndexX ))
+          if(this._isHeapSquare(areaIndexY, areaIndexX)) {
+            if(!this._addShapeToHeap(player)) {
+              // this._gameStatus = GAME_STATUS.OVER
+              this._renderHandle(this.state)
+            }
             return false
+          }
+
+          if(this.players.length === 1) {
+            return
+          }
+
+          for(let name in this.players) {
+            let curPlayer = this.players[name]
+            if(curPlayer === player) {
+              continue
+            }
+
+            for(let shapeY = 0; shapeY < ShapeDimension; shapeY++) {
+              let curAreaIndexY = this._getAreaIndexYFromShape(curPlayer.shape, shapeY, 0)
+              if(curAreaIndexY !== areaIndexY)
+                continue
+              for(let shapeX = 0; shapeX < ShapeDimension; shapeX++) {
+                let curAreaIndexX = this._getAreaIndexXFromShape(curPlayer.shape, shapeX, 0)
+                if(curAreaIndexX === areaIndexX && curPlayer.shape.body[shapeY][shapeX])
+                  return -1
+              }
+            }
+          }
         }
       }
     }
@@ -485,19 +569,41 @@ export default class Engine {
   }
 
   get state() {
-    let shape = this.players['Player'].shape
-    let nextShape = this.players['Player'].nextShape
+
+
+
+    let playData = []
+    if(this.players.length === 1) {
+      let shape = this.players['Player'].shape
+      let nextShape = this.players['Player'].nextShape
+
+      playData = {
+        shapeName: shape ? shape.name : null,
+        nextShape: {
+          name: nextShape ? nextShape.name : null,
+          body: nextShape ? nextShape.bodyWithAppearance : null,
+        },
+        statistic: this._statistic
+      }
+    } else {
+      for(let name in this.players) {
+        let player = this.players[name]
+
+        playData.push({
+          shapeName: player.shape ? player.shape.name : null,
+          nextShape: {
+            name: player.nextShape ? player.nextShape.name : null,
+            body: player.nextShape ? player.nextShape.bodyWithAppearance : null,
+          },
+          statistic: this._statistic
+        })
+      }
+    }
+
     return {
-
-
       gameStatus: this._gameStatus,
       body: this._getBody(),
-      shapeName: shape ? shape.name : null,
-      nextShape: {
-        name: nextShape ? nextShape.name : null,
-        body: nextShape ? nextShape.bodyWithAppearance : null,
-      },
-      statistic: this._statistic
+      playData: playData
     }
   }
 }
