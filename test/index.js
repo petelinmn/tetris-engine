@@ -105,11 +105,11 @@ let App = new Vue({
       width: 70,
       defaultHeap: defaultHeap,
       addittionalShapes: addittionalShapes,
-      renderHandle: self.render,
+      renderHandle: self.render/*,
       players: [
         'Max',
         'Oxana'
-      ]
+      ]*/
     }
     console.log(options);
     this.$gameEngine = new Engine(options)
@@ -123,8 +123,8 @@ let App = new Vue({
     })
 
     this.$gameEngine.start()
-    setInterval(()=>{
-      this.$gameEngine.moveDown()
-    }, 1000)
+    // setInterval(()=>{
+    //   this.$gameEngine.moveDown()
+    // }, 1000)
   }
 })

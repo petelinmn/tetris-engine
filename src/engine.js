@@ -3,6 +3,8 @@ import GAME_STATUS from './game-status'
 
 import tetraShapes from './tetra-shapes'
 
+const ShapeDimension = 5
+
 /**
  * Implements the engine of a game
  */
@@ -120,9 +122,9 @@ export default class Engine {
 
         let countShapesFalledByType = player.stat.countShapesFalledByType[player.shape.name]
         if(!countShapesFalledByType)
-          player.stat._statistic.countShapesFalledByType[player.shape.name] = 1
+          player.stat.countShapesFalledByType[player.shape.name] = 1
         else
-          player.stat._statistic.countShapesFalledByType[player.shape.name]++
+          player.stat.countShapesFalledByType[player.shape.name]++
 
 
         player.stat.countShapesFalled++
@@ -176,57 +178,85 @@ export default class Engine {
     }
   }
 
-  moveLeft() {
+  moveLeft(playerName = 'Player') {
     if(this._gameStatus !== GAME_STATUS.WORK)
       return
 
-    if(!this._canShapeMove(0, -1))
+    let player = this._getPlayerByName(playerName)
+    if(!this._canShapeMove(playerName, 0, -1))
       return
 
-    this._shape.position.X--
+    player.shape.position.X--
     this._renderHandle(this.state)
   }
 
-  moveRight() {
+  moveRight(playerName = 'Player') {
     if(this._gameStatus !== GAME_STATUS.WORK)
       return
 
-    if(!this._canShapeMove(0, 1))
+    let player = this._getPlayerByName(playerName)
+    if(!this._canShapeMove(playerName, 0, 1))
       return
 
-    this._shape.position.X++
+    player.shape.position.X++
     this._renderHandle(this.state)
   }
 
-  moveUp() {
+  moveUp(playerName = 'Player') {
     if(this._gameStatus !== GAME_STATUS.WORK)
       return
 
-    if(!this._canShapeMove(1, 0))
+    let player = this._getPlayerByName(playerName)
+    if(!this._canShapeMove(playerName, 1, 0))
       return
 
-    this._shape.position.Y++
+    player.shape.position.Y++
     this._renderHandle(this.state)
   }
 
-  moveDown() {
+  moveDown(playerName = 'Player') {
     if(this._gameStatus !== GAME_STATUS.WORK)
       return
 
-    if(!this._canShapeMove(-1, 0)) {
-      if(!this._addShapeToHeap()) {
+    let player = this._getPlayerByName(playerName)
+    if(!this._canShapeMove(playerName, -1, 0)) {
+      if(!this._addShapeToHeap(player)) {
         this._gameStatus = GAME_STATUS.OVER
         this._renderHandle(this.state)
       }
       return
     }
 
-
-    this._shape.position.Y--
+    player.shape.position.Y--
     this._renderHandle(this.state)
   }
 
-  _addShapeToHeap() {
+  rotate(playerName = 'Player') {
+    if(this._gameStatus !== GAME_STATUS.WORK)
+      return
+
+    let player = this._getPlayerByName(playerName)
+    if(!this._canShapeMove(playerName, 0, 0, player.shape.getRotatedBody()))
+      return
+
+    player.shape.rotate()
+    this._renderHandle(this.state)
+  }
+
+  rotateBack(playerName = 'Player') {
+    if(this._gameStatus !== GAME_STATUS.WORK)
+      return
+
+    let player = this._getPlayerByName(playerName)
+    if(!this._canShapeMove(playerName, 0, 0, player.shape.getRotatedBackBody()))
+      return
+
+    player.shape.rotateBack()
+    this._renderHandle(this.state)
+  }
+
+
+  _addShapeToHeap(player) {
     let newRowForHeap = []
     for(let i = 0; i < this.width; i++)
       newRowForHeap.push({
@@ -234,11 +264,11 @@ export default class Engine {
       })
 
     for(let y = ShapeDimension - 1; y >= 0; y--) {
-      let row = this._shape.body[y]
+      let row = player.shape.body[y]
       for(let x = 0; x < ShapeDimension; x++) {
         let cell = row[x]
         if(cell) {
-          let areaIndexY = this._getAreaIndexYFromShape(y)
+          let areaIndexY = this._getAreaIndexYFromShape(player.shape, y)
 
           if(areaIndexY >= this.height) {
             //game over :)
@@ -249,10 +279,10 @@ export default class Engine {
             this._heap.push(newRowForHeap.slice())
           }
 
-          let areaIndexX = this._getAreaIndexXFromShape(x)
+          let areaIndexX = this._getAreaIndexXFromShape(player.shape, x)
           this._heap[areaIndexY][areaIndexX] = {
             val: 1,
-            class: this._shape.name
+            class: player.shape.name
           }
         }
       }
@@ -304,65 +334,54 @@ export default class Engine {
     this._heap = newHeap
   }
 
-  rotate() {
-    if(this._gameStatus !== GAME_STATUS.WORK)
-      return
-
-    if(!this._canShapeMove(0, 0, this._shape.getRotatedBody()))
-      return
-
-    this._shape.rotate()
-    this._renderHandle(this.state)
+  _getShapeIndexX(shape, x) {
+    return x - shape.position.X
   }
 
-  rotateBack() {
-    if(this._gameStatus !== GAME_STATUS.WORK)
-      return
-
-    if(!this._canShapeMove(0, 0, this._shape.getRotatedBackBody()))
-      return
-
-    this._shape.rotateBack()
-    this._renderHandle(this.state)
+  _getShapeIndexY(shape, y) {
+    return shape.position.Y + (ShapeDimension - 1) - y
   }
 
-  _getShapeIndexX(x) {
-    return x - this._shape.position.X
+  _getAreaIndexXFromShape(shape, shapeX, delta = 0) {
+    return shapeX + shape.position.X + delta
   }
 
-  _getShapeIndexY(y) {
-    return this._shape.position.Y + (ShapeDimension - 1) - y
+  _getAreaIndexYFromShape(shape, shapeY, delta = 0) {
+    return shape.position.Y + (ShapeDimension - 1) - shapeY + delta
   }
 
-  _getAreaIndexXFromShape(shapeX, delta = 0) {
-    return shapeX + this._shape.position.X + delta
-  }
-
-  _getAreaIndexYFromShape(shapeY, delta = 0) {
-    return this._shape.position.Y + (ShapeDimension - 1) - shapeY + delta
+  _getPlayerByName(playerName = 'Player') {
+    for(let name in this.players) {
+      if(name === playerName) {
+        return this.players[name]
+      }
+    }
   }
 
   /**
    * Specifies that can a shape move.
    * If new coordinates of shape overlap with coordinates of heap
    * or are outside the game area the shape can't move
+   * @param {*} playerName unique name of a player who tries to move his shape
    * @param {*} deltaY specifies vertical moving distance
    * @param {*} deltaX specifies horizontal moving distance
    * @param {*} shapeBody specifies changed body of a shape, for example rotated body
    * @returns {Boolean} True - shape can moves id parametrized direction, False - shape cannot move
    */
-  _canShapeMove(deltaY, deltaX, shapeBody) {
-    if(!shapeBody)
-      shapeBody = this._shape.body
+  _canShapeMove(playerName, deltaY, deltaX, shapeBody) {
+    let player = this._getPlayerByName(playerName)
+    if(!shapeBody) {
+      shapeBody = player.shape.body
+    }
 
     for(let y = 0; y < shapeBody.length; y++) {
       let row = shapeBody[y]
-      let areaIndexY = this._getAreaIndexYFromShape(y, deltaY)
+      let areaIndexY = this._getAreaIndexYFromShape(player.shape, y, deltaY)
 
       for(let x = 0; x < row.length; x++) {
         let cell = row[x]
         if(cell) {
-          let areaIndexX = this._getAreaIndexXFromShape(x, deltaX)
+          let areaIndexX = this._getAreaIndexXFromShape(player.shape, x, deltaX)
 
           //check will the shape go over the walls and the ground
           if(areaIndexY < 0 || areaIndexX < 0 || areaIndexX >= this.width)
@@ -390,11 +409,17 @@ export default class Engine {
     }
   }
 
-  _isShapeSquare(y, x) {
-    if(!this._shape || !this._shape.body)
-      return false
-    let row = this._shape.body[this._getShapeIndexY(y)]
-    return row && row[this._getShapeIndexX(x)]
+  _getShapeInSquare(y, x) {
+    for(let name in this.players) {
+      let player = this.players[name]
+      if(!player.shape)
+        return
+      let row = player.shape.body[this._getShapeIndexY(player.shape, y)]
+      if(row && row[this._getShapeIndexX(player.shape, x)])
+        return player.shape
+    }
+
+    return null
   }
 
   _isHeapSquare(y, x) {
@@ -420,7 +445,8 @@ export default class Engine {
       let row = []
       for (let x = 0; x < this.width; x++) {
         let isHeap = this._isHeapSquare(y, x)
-        let isShape = this._isShapeSquare(y, x)
+        let shape = this._getShapeInSquare(y, x)
+        let isShape = !!shape
         let val = isHeap ? 2 : isShape ? 1 : 0
 
         if(!isShape && !isHeap) {
@@ -435,7 +461,7 @@ export default class Engine {
           let css = []
           if(isShape) {
             css.push('shape')
-            css.push(this._shape.name)
+            css.push(shape.name)
           }
 
           if(isHeap) {
@@ -459,13 +485,17 @@ export default class Engine {
   }
 
   get state() {
+    let shape = this.players['Player'].shape
+    let nextShape = this.players['Player'].nextShape
     return {
+
+
       gameStatus: this._gameStatus,
       body: this._getBody(),
-      shapeName: this._shape ? this._shape.name : null,
+      shapeName: shape ? shape.name : null,
       nextShape: {
-        name: this._nextShape ? this._nextShape.name : null,
-        body: this._nextShape ? this._nextShape.bodyWithAppearance : null,
+        name: nextShape ? nextShape.name : null,
+        body: nextShape ? nextShape.bodyWithAppearance : null,
       },
       statistic: this._statistic
     }
