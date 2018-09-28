@@ -16,8 +16,8 @@ html {
 }
 
 .game-table td {
-    width: 6px;
-    height: 6px;
+    width: 16px;
+    height: 16px;
     padding: 0;
     border: 1px solid honeydew;
 }

@@ -99,25 +99,33 @@ let App = new Vue({
       [1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
     ]
 
-    let addittionalShapes = {
+    let additionalShapes = {
       "MyShape": [
-        [0,1,0],
-        [0,1,0]
+        [0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 1, 1, 1, 0],
+        [0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0],
+      ],
+      "MyShape2": [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0],
+        [0, 1, 1, 1, 1],
+        [0, 0, 0, 1, 0],
+        [1, 0, 0, 0, 0],
       ]
     }
 
     var self = this
-    console.log(self.render);
     let options = {
       height: 30,
-      width: 70,
+      width: 15,
       defaultHeap: defaultHeap,
-      addittionalShapes: addittionalShapes,
+      additionalShapes: additionalShapes,
       renderHandle: self.render,
       players: [
         'Max',
         'Oxana',
-        'DDD'
       ]
     }
     
@@ -126,7 +134,7 @@ let App = new Vue({
     window.document.body.addEventListener('keydown', this.onKeyDown.bind(this))
 
     this.$gameEngine.start()
-    setInterval(()=>{
+    setInterval(() => {
       this.$gameEngine.moveDownAll()
     }, 1000)
   }

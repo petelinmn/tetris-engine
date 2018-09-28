@@ -141,10 +141,6 @@ export default class Engine {
         this._statistic.countShapesFalled++
       }
     }
-    //this._shape = this._nextShape ? this._nextShape : new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
-    //this._nextShape = new Shape(this._shapesSet, parseInt(this.width / 2 - 3), this.height)
-
-
   }
 
   /**
@@ -186,7 +182,7 @@ export default class Engine {
       return
 
     let player = this._getPlayerByName(playerName)
-    if(!this._canShapeMove(playerName, 0, -1))
+    if(this._canShapeMove(playerName, 0, -1) <= 0)
       return
 
     player.shape.position.X--
@@ -198,7 +194,7 @@ export default class Engine {
       return
 
     let player = this._getPlayerByName(playerName)
-    if(!this._canShapeMove(playerName, 0, 1))
+    if(this._canShapeMove(playerName, 0, 1) <= 0)
       return
 
     player.shape.position.X++
@@ -210,7 +206,7 @@ export default class Engine {
       return
 
     let player = this._getPlayerByName(playerName)
-    if(!this._canShapeMove(playerName, 1, 0))
+    if(this._canShapeMove(playerName, 1, 0) <= 0)
       return
 
     player.shape.position.Y++
@@ -230,7 +226,7 @@ export default class Engine {
 
     if(!canShapeMoveResult) {
       if(!this._addShapeToHeap(player)) {
-        this._gameStatus = GAME_STATUS.OVER
+        //this._gameStatus = GAME_STATUS.OVER
         this._renderHandle(this.state)
       }
       return
@@ -271,8 +267,9 @@ export default class Engine {
             this.players[name].shape.position.Y--
             movedDownPlayers[name] = true
           } else {
+            this._addShapeToHeap(this._getPlayerByName(name))
             if(countMovedShapes === this._players.length - 1) {
-              // this._gameStatus = GAME_STATUS.OVER
+              this._gameStatus = GAME_STATUS.OVER
             }
 
             allShapesMoved = false
@@ -292,7 +289,7 @@ export default class Engine {
       return
 
     let player = this._getPlayerByName(playerName)
-    if(!this._canShapeMove(playerName, 0, 0, player.shape.getRotatedBody()))
+    if(this._canShapeMove(playerName, 0, 0, player.shape.getRotatedBody()) <= 0)
       return
 
     player.shape.rotate()
@@ -304,7 +301,7 @@ export default class Engine {
       return
 
     let player = this._getPlayerByName(playerName)
-    if(!this._canShapeMove(playerName, 0, 0, player.shape.getRotatedBackBody()))
+    if(!this._canShapeMove(playerName, 0, 0, player.shape.getRotatedBackBody()) <= 0)
       return
 
     player.shape.rotateBack()
@@ -445,15 +442,11 @@ export default class Engine {
           }
 
           if(this._isHeapSquare(areaIndexY, areaIndexX)) {
-            if(!this._addShapeToHeap(player)) {
-              // this._gameStatus = GAME_STATUS.OVER
-              this._renderHandle(this.state)
-            }
-            return false
+            return deltaY < 0 ? false : -1
           }
 
           if(this.players.length === 1) {
-            return
+            return true
           }
 
           for(let name in this.players) {
