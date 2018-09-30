@@ -263,15 +263,18 @@ export default class Engine {
       let allShapesMoved = true
       for(let name in movedDownPlayers) {
         if(!movedDownPlayers[name]) {
-          if(this._canShapeMove(name, -1, 0)) {
+          let result = this._canShapeMove(name, -1, 0)
+          if(result === true) {
             this.players[name].shape.position.Y--
             movedDownPlayers[name] = true
-          } else {
+          } else if(result === false) {
             this._addShapeToHeap(this._getPlayerByName(name))
             if(countMovedShapes === this._players.length - 1) {
               this._gameStatus = GAME_STATUS.OVER
             }
 
+            allShapesMoved = false
+          } else {
             allShapesMoved = false
           }
         }
@@ -432,38 +435,39 @@ export default class Engine {
       let areaIndexY = this._getAreaIndexYFromShape(player.shape, y, deltaY)
 
       for(let x = 0; x < row.length; x++) {
-        let cell = row[x]
-        if(cell) {
-          let areaIndexX = this._getAreaIndexXFromShape(player.shape, x, deltaX)
+        if(!row[x]){
+          continue
+        }
 
-          //check will the shape go over the walls
-          if(areaIndexY < 0 || areaIndexX < 0 || areaIndexX >= this.width) {
-            return false
+        let areaIndexX = this._getAreaIndexXFromShape(player.shape, x, deltaX)
+
+        //check will the shape go over the walls
+        if(areaIndexY < 0 || areaIndexX < 0 || areaIndexX >= this.width) {
+          return false
+        }
+
+        if(this._isHeapSquare(areaIndexY, areaIndexX)) {
+          return deltaY < 0 ? false : -1
+        }
+
+        if(this.players.length === 1) {
+          return true
+        }
+
+        for(let name in this.players) {
+          let curPlayer = this.players[name]
+          if(curPlayer === player) {
+            continue
           }
 
-          if(this._isHeapSquare(areaIndexY, areaIndexX)) {
-            return deltaY < 0 ? false : -1
-          }
-
-          if(this.players.length === 1) {
-            return true
-          }
-
-          for(let name in this.players) {
-            let curPlayer = this.players[name]
-            if(curPlayer === player) {
+          for(let shapeY = 0; shapeY < ShapeDimension; shapeY++) {
+            let curAreaIndexY = this._getAreaIndexYFromShape(curPlayer.shape, shapeY, 0)
+            if(curAreaIndexY !== areaIndexY)
               continue
-            }
-
-            for(let shapeY = 0; shapeY < ShapeDimension; shapeY++) {
-              let curAreaIndexY = this._getAreaIndexYFromShape(curPlayer.shape, shapeY, 0)
-              if(curAreaIndexY !== areaIndexY)
-                continue
-              for(let shapeX = 0; shapeX < ShapeDimension; shapeX++) {
-                let curAreaIndexX = this._getAreaIndexXFromShape(curPlayer.shape, shapeX, 0)
-                if(curAreaIndexX === areaIndexX && curPlayer.shape.body[shapeY][shapeX])
-                  return -1
-              }
+            for(let shapeX = 0; shapeX < ShapeDimension; shapeX++) {
+              let curAreaIndexX = this._getAreaIndexXFromShape(curPlayer.shape, shapeX, 0)
+              if(curAreaIndexX === areaIndexX && curPlayer.shape.body[shapeY][shapeX])
+                return -1
             }
           }
         }
