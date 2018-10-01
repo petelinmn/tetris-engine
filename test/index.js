@@ -47,8 +47,8 @@ let App = new Vue({
       if (e && e.key && this) {
         switch (e.key) {
           case 'z':
-            this.$gameEngine.moveDownAll()
-            break
+          this.$gameEngine.moveDownAll()
+          break
           case 'Insert':
             this.$gameEngine.rotateBack('Max')
             break
@@ -122,13 +122,14 @@ let App = new Vue({
     var self = this
     let options = {
       height: 30,
-      width: 15,
+      width: 35,
       defaultHeap: defaultHeap,
       additionalShapes: additionalShapes,
       renderHandle: self.render,
       players: [
         'Max',
         'Oxana',
+        'uuu'
       ]
     }
     

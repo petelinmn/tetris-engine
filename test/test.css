@@ -7,7 +7,7 @@ html {
 }
 
 .game-table {
-    background-color:  honeydew; 
+    background-color:  #000; 
     border-spacing: 0px;
     font-size: 9px;
     float:left;
@@ -19,7 +19,7 @@ html {
     width: 6px;
     height: 6px;
     padding: 0;
-    border: 1px solid honeydew;
+    border: 1px solid #131317;
 }
 
 .shape-table {
