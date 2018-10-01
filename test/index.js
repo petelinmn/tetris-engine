@@ -46,6 +46,9 @@ let App = new Vue({
     onKeyDown(e) {
       if (e && e.key && this) {
         switch (e.key) {
+          case 'z':
+            this.$gameEngine.moveDownAll()
+            break
           case 'Insert':
             this.$gameEngine.rotateBack('Max')
             break
@@ -134,9 +137,9 @@ let App = new Vue({
     window.document.body.addEventListener('keydown', this.onKeyDown.bind(this))
 
     this.$gameEngine.start()
-    setInterval(() => {
-      this.$gameEngine.moveDownAll()
-    }, 1000)
+    // setInterval(() => {
+    //   this.$gameEngine.moveDownAll()
+    // }, 1000)
   }
 })
 
