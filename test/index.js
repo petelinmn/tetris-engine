@@ -4,32 +4,43 @@ let Engine = tetrisEngine.Engine
 let App = new Vue({
   template:
         `
-        <div class="test-container">
-          <table class="game-table">
-              <tbody>
-                  <tr v-for="row in gameState.body">
-                      <td v-for="cell in row"
-                          v-bind:class="cell.css">
-                      </td>
-                  </tr>
-              </tbody>
-          </table>
+        <div class="control-container">
+          <div class="game-container">
+            <table class="game-table">
+                <tbody>
+                    <tr v-for="row in gameState.body">
+                        <td v-for="cell in row"
+                            v-bind:class="cell.css">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-          <div class="right-content">
-            <div v-if="gameState.playData.nextShape">
-                <table class="shape-table">
-                    <tbody>
-                        <tr v-for="row in gameState.playData.nextShape.body">
-                            <td v-for="cell in row"
-                                v-bind:class="cell.css">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="right-content">
+              <div v-if="gameState.playData[0].nextShape">
+                  <table class="shape-table">
+                      <tbody>
+                          <tr v-for="row in gameState.playData[0].nextShape.body">
+                              <td v-for="cell in row"
+                                  v-bind:class="cell.css">
+                              </td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
             </div>
-
+            <div class="frames-count">{{gameState.timeFromLastRender}}</div>
+            
+          </div>
+          <div class="control-container">
+            <button class="btn" v-on:click="left" v-on:mouseup="rotate">left</button>
+            <button class="btn" v-on:click="right">right</button>
+            <button class="btn" v-on:click="down">down</button>
+            <button class="btn" v-on:click="rotate">rotate</button>
+            <button class="btn" v-on:click="togglePause">pause</button>
           </div>
         </div>
+        
         `,
   el: '#app',
   data() {
@@ -43,12 +54,24 @@ let App = new Vue({
         alert('game over')
       this.gameState = gameState
     },
+    togglePause() {
+      this.$gameEngine.togglePause();
+    },
+    rotate() {
+      this.$gameEngine.rotate('Max');
+    },
+    left() {
+      this.$gameEngine.moveLeft('Max');
+    },
+    right() {
+      this.$gameEngine.moveRight('Max');
+    },
+    down() {
+      this.$gameEngine.moveDown('Max');
+    },
     onKeyDown(e) {
       if (e && e.key && this) {
         switch (e.key) {
-          case 'z':
-          this.$gameEngine.moveDownAll()
-          break
           case 'Insert':
             this.$gameEngine.rotateBack('Max')
             break
@@ -91,10 +114,6 @@ let App = new Vue({
     }
   },
   beforeMount() {
-
-    let areaHeight = 50
-    let areaWidth = 80
-
     let defaultHeap = [
       [0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
       [1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -102,45 +121,22 @@ let App = new Vue({
       [1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
     ]
 
-    let additionalShapes = {
-      "MyShape": [
-        [0, 0, 0, 0, 0],
-        [0, 0, 1, 0, 0],
-        [0, 1, 1, 1, 0],
-        [0, 0, 1, 0, 0],
-        [0, 0, 0, 0, 0],
-      ],
-      "MyShape2": [
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 1, 0],
-        [0, 1, 1, 1, 1],
-        [0, 0, 0, 1, 0],
-        [1, 0, 0, 0, 0],
-      ]
-    }
 
     var self = this
     let options = {
       height: 30,
-      width: 35,
+      width: 15,
       defaultHeap: defaultHeap,
-      additionalShapes: additionalShapes,
-      renderHandle: self.render,
-      players: [
-        'Max',
-        'Oxana',
-        'uuu'
-      ]
+      additionalShapes: {},
+      renderHandle: self.render, 
+      players: [{name:'Oxana', isBot: true},{name:'Oxana2', isBot: true},{name:'Oxana3', isBot: true}],
     }
     
     this.$gameEngine = new Engine(options)
 
     window.document.body.addEventListener('keydown', this.onKeyDown.bind(this))
 
-    this.$gameEngine.start()
-    // setInterval(() => {
-    //   this.$gameEngine.moveDownAll()
-    // }, 1000)
+    this.$gameEngine.start();
   }
 })
 

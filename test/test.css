@@ -1,8 +1,15 @@
 html {
     background-color: #3b424c; 
+    -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
 }
 
-.test-container {
+.game-container {
     display: flex;
 }
 
@@ -16,14 +23,14 @@ html {
 }
 
 .game-table td {
-    width: 6px;
-    height: 6px;
+    width: 18px;
+    height: 18px;
     padding: 0;
     border: 1px solid #131317;
 }
 
 .shape-table {
-    background-color: #cef6f0;
+    background-color: #3b424c;
     border: 1px solid black;
 }
 
@@ -111,4 +118,17 @@ html {
 
 .rightEdge {
     border-right: 1px solid red !important;
+}
+
+.btn {
+    width: 70px;
+    height: 60px;
+}
+
+.frames-count {
+    color: white;
+}
+
+.right-content {
+    float: left;
 }

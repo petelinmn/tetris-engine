@@ -1,6 +1,6 @@
 import Shape from './shape'
 import GAME_STATUS from './game-status'
-
+import AI from './ai'
 import tetraShapes from './tetra-shapes'
 
 const ShapeDimension = 5
@@ -10,7 +10,6 @@ const ShapeDimension = 5
  */
 
 export default class Engine {
-
   /**
    * Initializing new area
    * @param {Object} options is the container for following options:
@@ -34,42 +33,52 @@ export default class Engine {
     let self = this
     this.width = options.width
     this.height = options.height
+    this._players = options.players ? options.players : ['Player']
 
-    this._players = options.players
-
-    if(!options.players)
-      this.players = {
-        'Player': {
-          stat: this._newStatistic()
-        }
+    this.players = {}
+    for(let i = 0; i < this._players.length; i++) {
+      let player = this._players[i]
+      let playerName = player.name ? player.name : player + ''
+      if(this.players[playerName]) {
+        throw new Error('multiple user name!')
       }
-    else {
-      this.players = {}
-      for(let i = 0; i < options.players.length; i++) {
-        let player = options.players[i]
-        if(this.players[player])
-          throw new Error('multiple user name!')
-        else
-          this.players[player] = {
-            name: player,
-            stat: self._newStatistic()
-          }
+      else {
+        this.players[playerName] = {
+          name: playerName,
+          isBot: player.isBot,
+          bot: player.isBot ? new AI({
+            moveLeft: () => {
+              this.moveLeft(playerName)
+            },
+            moveRight: () => {
+              this.moveRight(playerName)
+            },
+            moveDown: () => {
+              this.rotate(playerName)
+            },
+            rotate: () => {
+              this.moveDown(playerName)
+            },
+          }) : null,
+          stat: self._newStatistic()
+        }
       }
     }
 
     this._renderHandle = options.renderHandle
 
     this._shapesSet = {}
-    for(let key in tetraShapes)
-      this._shapesSet[key] = tetraShapes[key]
+    if(!options.dontIncludeDefaultShapes) {
+      for(let key in tetraShapes)
+        this._shapesSet[key] = tetraShapes[key]
+    }
 
-    if(options.additionalShapes)
+    if(options.additionalShapes) {
       for(let key in options.additionalShapes)
         this._shapesSet[key] = options.additionalShapes[key]
+    }
 
     this._gameStatus = GAME_STATUS.INIT
-
-    this._statistic = this._newStatistic()
 
     this._heap = []
     if(options.defaultHeap && options.defaultHeap.length && options.defaultHeap[0].length) {
@@ -93,54 +102,7 @@ export default class Engine {
     }
 
     this._checkHeapForReduce()
-
     this._renderHandle(this.state)
-  }
-
-  _newStatistic() {
-    return {
-      countShapesFalled: 0,
-      countShapesFalledByType: {},
-      countLinesReduced: 0,
-      countDoubleLinesReduced: 0,
-      countTrippleLinesReduced: 0,
-      countQuadrupleLinesReduced: 0
-    }
-  }
-
-  /**
-   * Creates a new Shape
-   * @param {*} playerName is name of player, who need receive new shape
-   * @returns {void}
-   */
-  _newShape(playerName = null) {
-    let playerIndex = 0
-    for (let name in this.players) {
-      playerIndex++
-      if(!playerName || name === playerName) {
-        let player = this.players[name]
-        let displayPart = parseInt(playerIndex * (this.width / (this._players.length + 1)) - 1)
-        player.shape = player.nextShape ? player.nextShape : new Shape(this._shapesSet, displayPart, this.height)
-        player.nextShape = new Shape(this._shapesSet, displayPart, this.height)
-
-        let countShapesFalledByType = player.stat.countShapesFalledByType[player.shape.name]
-        if(!countShapesFalledByType)
-          player.stat.countShapesFalledByType[player.shape.name] = 1
-        else
-          player.stat.countShapesFalledByType[player.shape.name]++
-
-
-        player.stat.countShapesFalled++
-
-        countShapesFalledByType = this._statistic.countShapesFalledByType[player.shape.name]
-        if(!countShapesFalledByType)
-          this._statistic.countShapesFalledByType[player.shape.name] = 1
-        else
-          this._statistic.countShapesFalledByType[player.shape.name]++
-
-        this._statistic.countShapesFalled++
-      }
-    }
   }
 
   /**
@@ -154,11 +116,13 @@ export default class Engine {
     if(this._gameStatus === GAME_STATUS.INIT) {
       this._newShape()
       this._gameStatus = GAME_STATUS.WORK
+      this._newCycle()
       return true
     }
 
     if(this._gameStatus === GAME_STATUS.PAUSE) {
       this._gameStatus = GAME_STATUS.WORK
+      this._newCycle()
     }
   }
 
@@ -167,12 +131,25 @@ export default class Engine {
    * @returns {void}
    */
   pause() {
+    if (this._gameStatus === GAME_STATUS.WORK) {
+      this._gameStatus = GAME_STATUS.PAUSE
+      this._stopCycle()
+    }
+  }
+
+  /**
+   * Turn on a pause mode
+   * @returns {void}
+   */
+  togglePause() {
     switch(this._gameStatus) {
     case GAME_STATUS.WORK:
       this._gameStatus = GAME_STATUS.PAUSE
+      this._stopCycle()
       break
     case GAME_STATUS.PAUSE:
       this._gameStatus = GAME_STATUS.WORK
+      this._newCycle()
       break
     }
   }
@@ -236,57 +213,6 @@ export default class Engine {
     this._renderHandle(this.state)
   }
 
-  moveDownAll() {
-    if(this._gameStatus !== GAME_STATUS.WORK) {
-      return
-    }
-
-    let movedDownPlayers = {}
-    for(let name in this.players) {
-      movedDownPlayers[name] = false
-    }
-
-    let fuse = 0
-    console.log('perpetual cycle')
-    for (;;) {
-      if(++fuse > 1000) {
-        console.error('fuse tripped')
-        break
-      }
-
-      let countMovedShapes = 0
-      for(let name in movedDownPlayers) {
-        if(movedDownPlayers[name])
-          countMovedShapes++
-      }
-
-      let allShapesMoved = true
-      for(let name in movedDownPlayers) {
-        if(!movedDownPlayers[name]) {
-          let result = this._canShapeMove(name, -1, 0)
-          if(result === true) {
-            this.players[name].shape.position.Y--
-            movedDownPlayers[name] = true
-          } else if(result === false) {
-            this._addShapeToHeap(this._getPlayerByName(name))
-            if(countMovedShapes === this._players.length - 1) {
-              this._gameStatus = GAME_STATUS.OVER
-            }
-
-            allShapesMoved = false
-          } else {
-            allShapesMoved = false
-          }
-        }
-      }
-
-      if(allShapesMoved || this._gameStatus === GAME_STATUS.OVER)
-        break
-    }
-
-    this._renderHandle(this.state)
-  }
-
   rotate(playerName = 'Player') {
     if(this._gameStatus !== GAME_STATUS.WORK)
       return
@@ -311,6 +237,162 @@ export default class Engine {
     this._renderHandle(this.state)
   }
 
+  get state() {
+    let playData = []
+    for(let name in this.players) {
+      let player = this.players[name]
+
+      playData.push({
+        shapeName: player.shape ? player.shape.name : null,
+        nextShape: {
+          name: player.nextShape ? player.nextShape.name : null,
+          body: player.nextShape ? player.nextShape.bodyWithAppearance : null,
+        }
+      })
+    }
+
+    let newState = {
+      gameStatus: this._gameStatus,
+      body: this._getBody(),
+      playData: playData,
+      timeFromLastRender: new Date() - this._lastRenderDate
+    }
+
+    for(let name in this.players) {
+      let player = this.players[name]
+      if(player.isBot && player.bot) {
+        player.bot.setGameState(newState, player.shape)
+      }
+    }
+
+    this._lastRenderDate = new Date()
+    return newState
+  }
+
+  _newStatistic() {
+    return {
+      countShapesFalled: 0,
+      countShapesFalledByType: {},
+      countLinesReduced: 0,
+      countDoubleLinesReduced: 0,
+      countTrippleLinesReduced: 0,
+      countQuadrupleLinesReduced: 0
+    }
+  }
+
+  /**
+   * Creates a new Shape
+   * @param {*} playerName is name of player, who need receive new shape
+   * @returns {void}
+   */
+  _newShape(playerName = null) {
+    let playerIndex = 0
+    for (let name in this.players) {
+      playerIndex++
+      if(!playerName || name === playerName) {
+        let player = this.players[name]
+        let displayPart = parseInt(playerIndex * (this.width / (this._players.length + 1)) - 1)
+        player.shape = player.nextShape ? player.nextShape : new Shape(this._shapesSet, displayPart, this.height)
+        player.nextShape = new Shape(this._shapesSet, displayPart, this.height)
+
+        let countShapesFalledByType = player.stat.countShapesFalledByType[player.shape.name]
+        if(!countShapesFalledByType)
+          player.stat.countShapesFalledByType[player.shape.name] = 1
+        else
+          player.stat.countShapesFalledByType[player.shape.name]++
+
+
+        player.stat.countShapesFalled++
+
+        countShapesFalledByType = player.stat.countShapesFalledByType[player.shape.name]
+        if(!countShapesFalledByType)
+          player.stat.countShapesFalledByType[player.shape.name] = 1
+        else
+          player.stat.countShapesFalledByType[player.shape.name]++
+
+        player.stat.countShapesFalled++
+      }
+    }
+  }
+
+  _newCycle() {
+    var self = this
+    if(!this._idInterval) {
+      if(this._restOfLastCycle) {
+        console.log(self._restOfLastCycle)
+        setTimeout(function() {
+          self._cycle()
+          self._setCycle()
+        }, self._restOfLastCycle)
+      } else {
+        this._setCycle()
+      }
+    }
+  }
+
+  _setCycle() {
+    var self = this
+    this._idInterval = setInterval(() => {
+      self._cycle()
+    }, 1000)
+  }
+
+  _cycle() {
+    this._moveDownAll()
+    this._lastCycleDate = new Date()
+  }
+
+  _stopCycle() {
+    if(this._idInterval) {
+      clearInterval(this._idInterval)
+      this._restOfLastCycle = new Date() - this._lastCycleDate
+      this._idInterval = null
+    }
+  }
+
+  _moveDownAll() {
+    if(this._gameStatus !== GAME_STATUS.WORK) {
+      return
+    }
+
+    let movedDownPlayers = {}
+    for(let name in this.players) {
+      movedDownPlayers[name] = false
+    }
+
+    for (;;) {
+      let countMovedShapes = 0
+      for(let name in movedDownPlayers) {
+        if(movedDownPlayers[name])
+          countMovedShapes++
+      }
+
+      let allShapesMoved = true
+      for(let name in movedDownPlayers) {
+        if(!movedDownPlayers[name]) {
+          let result = this._canShapeMove(name, -1, 0)
+          if(result === true) {
+            this.players[name].shape.position.Y--
+            movedDownPlayers[name] = true
+          } else if(result === false) {
+            this._addShapeToHeap(this._getPlayerByName(name))
+            if(countMovedShapes === this._players.length - 1) {
+              // this._gameStatus = GAME_STATUS.OVER
+            }
+
+            allShapesMoved = false
+          } else {
+            allShapesMoved = false
+          }
+        }
+      }
+
+      if(allShapesMoved || this._gameStatus === GAME_STATUS.OVER)
+        break
+    }
+
+    this._renderHandle(this.state)
+  }
 
   _addShapeToHeap(player) {
     let newRowForHeap = []
@@ -344,15 +426,14 @@ export default class Engine {
       }
     }
 
-    this._checkHeapForReduce()
-
+    this._checkHeapForReduce(player)
     this._newShape(player.name)
     this._renderHandle(this.state)
 
     return true
   }
 
-  _checkHeapForReduce() {
+  _checkHeapForReduce(player) {
     let linesToRemove = []
     for(let y = this._heap.length - 1; y >= 0; y--) {
       let row = this._heap[y]
@@ -374,16 +455,19 @@ export default class Engine {
         newHeap.push(this._heap[y])
     }
 
-    this._statistic.countLinesReduced += linesToRemove.length
+    if(!player)
+      return
+
+    player.stat.countLinesReduced += linesToRemove.length
     switch(linesToRemove.length) {
     case 2:
-      this._statistic.countDoubleLinesReduced++
+      player.stat.countDoubleLinesReduced++
       break
     case 3:
-      this._statistic.countTrippleLinesReduced++
+      player.stat.countTrippleLinesReduced++
       break
     case 4:
-      this._statistic.countQuadrupleLinesReduced++
+      player.stat.countQuadrupleLinesReduced++
       break
     }
 
@@ -412,6 +496,8 @@ export default class Engine {
         return this.players[name]
       }
     }
+
+    return this.players['Player']
   }
 
   /**
@@ -447,6 +533,10 @@ export default class Engine {
         }
 
         if(this._isHeapSquare(areaIndexY, areaIndexX)) {
+          if(ShapeDimension - player.shape.paddingTop + player.shape.position.Y > this.height) {
+            this._gameStatus = GAME_STATUS.OVER
+          }
+
           return deltaY < 0 ? false : -1
         }
 
@@ -475,19 +565,6 @@ export default class Engine {
     }
 
     return true
-  }
-
-  setNextShape(key) {
-    switch(key) {
-    case 'i':
-      this._nextShape = new Shape(this._shapesSet)
-      this._nextShape._shape = this._shapesSet["IShape"].slice()
-      break
-    case 'o':
-      this._nextShape = new Shape(this._shapesSet)
-      this._nextShape._shape = this._shapesSet["OShape"].slice()
-      break
-    }
   }
 
   _getShapeInSquare(y, x) {
@@ -563,45 +640,6 @@ export default class Engine {
 
     }
     return body
-  }
-
-  get state() {
-
-
-
-    let playData = []
-    if(this.players.length === 1) {
-      let shape = this.players['Player'].shape
-      let nextShape = this.players['Player'].nextShape
-
-      playData = {
-        shapeName: shape ? shape.name : null,
-        nextShape: {
-          name: nextShape ? nextShape.name : null,
-          body: nextShape ? nextShape.bodyWithAppearance : null,
-        },
-        statistic: this._statistic
-      }
-    } else {
-      for(let name in this.players) {
-        let player = this.players[name]
-
-        playData.push({
-          shapeName: player.shape ? player.shape.name : null,
-          nextShape: {
-            name: player.nextShape ? player.nextShape.name : null,
-            body: player.nextShape ? player.nextShape.bodyWithAppearance : null,
-          },
-          statistic: this._statistic
-        })
-      }
-    }
-
-    return {
-      gameStatus: this._gameStatus,
-      body: this._getBody(),
-      playData: playData
-    }
   }
 }
 

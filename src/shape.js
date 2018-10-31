@@ -64,11 +64,13 @@ export default class Shape {
     for (let y = 0; y < ShapeDimension; y++) {
       for (let x = 0; x < ShapeDimension; x++) {
         if (this._shape[y][x]) {
-          if (paddingLeft > x)
+          if (paddingLeft > x) {
             paddingLeft = x
+          }
 
-          if (paddingTop < 0)
+          if (paddingTop < 0) {
             paddingTop = y
+          }
         }
       }
     }
@@ -76,11 +78,13 @@ export default class Shape {
     for (let y = ShapeDimension - 1; y >= 0; y--) {
       for (let x = ShapeDimension - 1; x >= 0; x--) {
         if (this._shape[y][x]) {
-          if (paddingRight > ShapeDimension - 1 - x)
+          if (paddingRight > ShapeDimension - 1 - x) {
             paddingRight = ShapeDimension - 1 - x
+          }
 
-          if (paddingBottom < 0)
+          if (paddingBottom < 0) {
             paddingBottom = ShapeDimension - 1 - y
+          }
         }
       }
     }
